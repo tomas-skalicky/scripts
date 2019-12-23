@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#
+# Since the update of search databases may take longer, this role should be
+# executed at the end for the list of roles.
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+search_packages_to_install=(
+    locate
+)
+
+#-------------------------------------------------------------------------------
+
+install_search_packages() {
+    aptget_update
+    aptget_install "${search_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+update_file_name_database() {
+    updatedb
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    install_search_packages
+    update_file_name_database
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

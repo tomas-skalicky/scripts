@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+pass_specific_packages_to_install=(
+    pass     # Tool itself
+    qtpass   # GUI for linux. See https://qtpass.org/
+    xclip    # For copying of password undisclosed to clipboard
+)
+
+#-------------------------------------------------------------------------------
+
+install_pass_specific_packages() {
+    aptget_install "${pass_specific_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    install_pass_specific_packages
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

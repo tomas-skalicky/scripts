@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_docker_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	deb   https://apt.dockerproject.org/repo   ubuntu-${current_ubuntu_distribution_name:?}   main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/docker.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    aptkey_adv 58118E89F3A912897C070ADBF76221572C52609D \
+               p80.pool.sks-keyservers.net
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_docker() {
+    aptget_update
+    aptget_install docker-engine
+}
+
+#-------------------------------------------------------------------------------
+
+configure_docker_for_non_root_user() {
+    usermod --append --groups docker "${username:?}"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_docker_apt_sources
+    install_docker
+    configure_docker_for_non_root_user
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

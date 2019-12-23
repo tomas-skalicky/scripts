@@ -1,0 +1,9 @@
+# These files contain private information, hence git-ignored.
+logstash_forwarder.crt
+logstash_forwarder.private.key
+
+# This init script is not my work. The script has been downloaded from
+# the internet. I do not want to publish work which is not mine, hence
+# git-ignored.
+logstash_forwarder.init
+

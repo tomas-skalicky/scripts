@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+install_skype() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -A skype
+    # shellcheck disable=SC2154
+    skype[deb_package_name]=skypeforlinux
+    # shellcheck disable=SC2154
+    skype[deb_package_file_name]=${skype[deb_package_name]}-64.deb
+    # shellcheck disable=SC2154
+    skype[download_destination_file_path]=$user_downloads/${skype[deb_package_file_name]}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if is_deb_package_installed "${skype[deb_package_name]}"; then
+        print_info 'Skype has already been installed'
+    else
+        print_info 'Skype is being installed...'
+        if [[ ! -f ${skype[download_destination_file_path]} ]]; then
+            wget \
+                 --output-document="${skype[download_destination_file_path]}" \
+                 "https://go.skype.com/${skype[deb_package_file_name]}"
+        fi
+        dpkg --install "${skype[download_destination_file_path]}"
+        rm "${skype[download_destination_file_path]}"
+    fi
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    install_skype
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

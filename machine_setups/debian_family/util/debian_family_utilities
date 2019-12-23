@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+aptkey_adv() {
+    local -r key=${1:?}
+    local -r keyserver=${2:-keyserver.ubuntu.com}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf 'Downloading key %s from keyserver %s into the trusted set of keys...' \
+           "$key" \
+           "$keyserver"
+    if apt-key adv \
+                   --keyserver hkp://"$keyserver":80 \
+                   --recv-keys "$key" 1>/dev/null 2>&1
+    then
+        outcome='done'
+    else
+        outcome=ERROR
+    fi
+    printf ' %s.\n' "$outcome"
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+aptget_update() {
+    printf 'Updating package list...'
+    if apt-get \
+               --quiet \
+               --quiet \
+               update
+    then
+        outcome='done'
+    else
+        outcome=ERROR
+    fi
+    printf ' %s.\n' "$outcome"
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+aptget_upgrade() {
+    printf 'Upgrading packages...'
+    apt-get \
+            --quiet \
+            --quiet \
+            upgrade \
+                    --assume-yes
+    printf ' %s.\n' 'done'
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+aptget_action() {
+    local -r action_verb=${1:?}
+    local -r action_message=${2:?}
+    # ($3) creates from the 3rd parameter an array
+    local -r action_options=($3)
+    local -r package_list=("${@:4}")
+    if ! ((${#package_list[@]})); then
+        return
+    fi
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf '%s:...\n' "$action_message"
+    printf -- '- %s\n' "${package_list[@]}"
+    set +u
+    apt-get \
+            --quiet \
+            --quiet \
+            "$action_verb" \
+                           --assume-yes \
+                           "${action_options[@]}" \
+                           "${package_list[@]}" \
+        > /dev/null
+    set -u
+    printf ' ...%s.\n' 'done'
+    printf '\n'
+}
+
+aptget_install() {
+    aptget_action \
+                  install \
+                  'Installing packages' \
+                  '' \
+                  "$@"
+}
+
+aptget_install_unauthenticated() {
+    aptget_action \
+                  install \
+                  'Installing unauthenticated packages' \
+                  --allow-unauthenticated \
+                  "$@"
+}
+
+aptget_purge() {
+    aptget_action \
+                  purge \
+                  'Purging packages' \
+                  '' \
+                  "$@"
+}
+
+#-------------------------------------------------------------------------------
+
+is_deb_package_installed() {
+    local -r deb_package_name=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    dpkg --status "$deb_package_name" | grep --quiet '^Status: install ok installed$'
+}
+
+#-------------------------------------------------------------------------------
+

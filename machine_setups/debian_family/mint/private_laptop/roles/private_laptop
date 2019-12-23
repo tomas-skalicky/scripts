@@ -1,0 +1,420 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_file_system() {
+    # noatime ... eliminates the need by the system to make writes to
+    #             the file system for files which are simply being read.
+    # discard ... enables TRIM (key feature for SSDs)
+    local -r additional_ssh_disks_options=,noatime,discard
+    local -r fstab_file_path=/etc/fstab
+    sed \
+        --in-place \
+        --regexp-extend \
+        "s/^(.*\/[ ]+ext4[ ]+errors=remount-ro)([ ]+.*)$/\1$additional_ssh_disks_options\2/" \
+        "$fstab_file_path"
+    sed \
+        --in-place \
+        --regexp-extend \
+        "s/^(.*\/home[ ]+ext4[ ]+defaults)([ ]+.*)$/\1$additional_ssh_disks_options\2/" \
+        "$fstab_file_path"
+    mount --all
+}
+
+#-------------------------------------------------------------------------------
+
+private_laptop_specific_debian_packages_to_install=(
+    postgresql
+)
+
+install_private_laptop_specific_debian_packages() {
+    aptget_install "${private_laptop_specific_debian_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+private_laptop_specific_snap_packages_to_install=(
+    postman
+)
+
+install_private_laptop_specific_snap_packages() {
+    snap install "${private_laptop_specific_snap_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+
+private_laptop_specific_python_packages_to_install=(
+    jupyter      # jupyter notebook is not a part of the PyCharm community
+                 # version any more
+    matplotlib
+    pandas       # Needed for my bot using algorithm based on support and
+                 # resistance.
+    PyFunctional # Needed for my bot using algorithm based on support and
+                 # resistance.
+)
+
+install_private_laptop_specific_python_packages() {
+    # --user ... pip installs Python packages to a system directory (such as
+    #            /usr/local/lib/python3.6) by default. This requires root
+    #            access. The option --user makes pip install packages in your
+    #            home directory instead which does not require any special
+    #            priviledges. Go to ~/.local/bin (such as
+    #            ~/.local/bin/jupyter-notebook) to execute the package.
+    sudo --user="${username:?}" python3 -m pip install --user "${private_laptop_specific_python_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+
+configure_ssh() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r ssh_dir=${user_home:?}/.ssh
+    if [[ ! -d $ssh_dir ]]; then
+        sudo --user="${username:?}" mkdir "$ssh_dir"
+    fi
+    chmod 700 "$ssh_dir"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r key_storage_dirpath=${user_home:?}/Documents/development/.ssh
+    local -r filepath=$ssh_dir/config
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	Host github.com
+	IdentityFile $key_storage_dirpath/id_rsa
+	
+	# My DigitalOcean Jenkins
+	Host jenkins
+	HostName 141.0.170.48
+	User root
+	IdentityFile $key_storage_dirpath/digitalocean/id_rsa
+	
+	# My DigitalOcean Nexus
+	Host nexus
+	HostName 192.241.179.41
+	User root
+	IdentityFile $key_storage_dirpath/digitalocean/id_rsa
+	
+	Host bitbucket.org
+	IdentityFile $key_storage_dirpath/bitbucket/id_rsa
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    chown_to_user "$filepath"
+    chmod 600 "$filepath"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+configure_gpg_agent() {
+    local filepath=$user_home/.gnupg/gpg-agent.conf
+    local file_contents
+    # To cache a passphrase for max. 90 sec. and then require the passphrase
+    # from the user again.
+    set +e
+    read -r -d '' file_contents <<- EOF
+	default-cache-ttl 90
+	max-cache-ttl 90
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    chown_to_user "$filepath"
+    chmod 600 "$filepath"
+}
+
+configure_gnupg2() {
+    configure_gpg_agent
+}
+
+#-------------------------------------------------------------------------------
+
+install_multimedia_software() {
+    add-apt-repository ppa:kdenlive/kdenlive-stable -y
+    aptget_update
+    aptget_install kdenlive
+}
+
+#-------------------------------------------------------------------------------
+
+set_up_backup_process() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r backup_mount_point=/backup
+    [[ ! -d $backup_mount_point ]] && mkdir --verbose "$backup_mount_point"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r rsync_options=(
+        '--archive'
+        '--verbose'
+        '--log-file=/var/log/backup_cronjob.rsync.log'
+        '--stats'
+        '--exclude backup/'
+        '--exclude cdrom/'
+        '--exclude dev/'
+        "--exclude home/${username:?}/.cache"
+        '--exclude lost\+found/'
+        '--exclude media/'
+        '--exclude mnt/'
+        '--exclude proc/'
+        '--exclude run/'
+        '--exclude sys/'
+        '--exclude tmp/'
+        '--exclude var/tmp/'
+    )
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/cron.d/backup
+    local file_contents
+    # --delete-after option means:
+    #     1. rsync syncs files from source (laptop disk) to desctination
+    #        (backup folder)
+    #     2. When the sync is done, rsync removes from the destionation
+    #        those files, which are no more in the source.
+    set +e
+    read -r -d '' file_contents <<- EOF
+	0 20 * * *   root   chronic rsync ${rsync_options[@]} / "$backup_mount_point"
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    chmod 644 "$filepath"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+set_up_cinnamon_session_restart_process() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/cron.d/cinnamon_session_restart
+    local file_contents
+    # The CRON task kills the current Cinnamon session and a new one is
+    # automatically created. It is a workaround for a CPU issue.
+    set +e
+    read -r -d '' file_contents <<- EOF
+	0 */3 * * *  root   ps aux | grep 'cinnamon --sm-client-id ' | grep --invert-match 'grep' | tr --squeeze-repeats ' ' | cut --delimiter=' ' --fields=2 | xargs kill -KILL
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    chmod 644 "$filepath"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+create_or_update_auxiliary_tmux_functions_for_interactive_shells() {
+    create_or_update_common_auxiliary_tmux_functions_for_interactive_shells
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local block_contents
+    set +e
+    # Don't replace EOF with 'EOF'. Otherwise, you would have to replace all \$
+    # with $.
+    read -r -d '' block_contents <<- EOF
+	open_tmux() {
+	    local -r session_name=\$(get_new_tmux_session_name)
+	    local -r submit_command_key=C-m
+	    local -r doublecmd_window_name=doublecmd
+	    tmux new-session \\
+	                     -d \\
+	                     -s "\$session_name" \\
+	                     -n "\$doublecmd_window_name"
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$doublecmd_window_name" \\
+	                    doublecmd "\$submit_command_key"
+	    local -r chrome_window_name=chrome
+	    tmux new-window \\
+	                    -d \\
+	                    -t "\$session_name" \\
+	                    -n "\$chrome_window_name"
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$chrome_window_name" \\
+	                   google-chrome "\$submit_command_key"
+	    local -r idea_window_name=idea
+	    tmux new-window \\
+	                    -d \\
+	                    -t "\$session_name" \\
+	                    -n "\$idea_window_name"
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$idea_window_name" \\
+	                   '#ideaIC' "\$submit_command_key"
+	    local -r bot_window_name=bot
+	    tmux new-window \\
+	                    -t "\$session_name" \\
+	                    -n "\$bot_window_name" \\
+	                    'bash -l'
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$bot_window_name" \\
+	                   'cd_spring; cd cointradingbot; profile=production; log_file="\$profile".log; >"\$log_file"; #gw bootRun -PmainProfile="\$profile" | tee "\$log_file"' "\$submit_command_key"
+	    # The 1st pane is for the execution of the bot itself. Does not need much
+	    # place.
+	    tmux split-window \\
+	                      -t "\$session_name":"\$bot_window_name" \\
+	                      -p 95 \\
+	                      -v
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$bot_window_name" \\
+	                   'cd_spring; cd cointradingbot; #tail -90f production.log' "\$submit_command_key"
+	    # The 2nd pane is for the tailing of the whole log of the bot, hence
+	    # the pane needs to be large.
+	    tmux split-window \\
+	                      -t "\$session_name":"\$bot_window_name" \\
+	                      -p 50 \\
+	                      -v
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$bot_window_name" \\
+	                   'cd_spring; cd cointradingbot; #tail -90f production.log | grep Exception' "\$submit_command_key"
+	    # The 3rd pane is for tailing of exceptions filtered out of the log of
+	    # the bot, hence the pane does not need to be so large.
+	    # The 4th pane is for the start of sqldeveloper and htop, hence the
+	    # pane does not need to be so large, but cannot be too small either.
+	    tmux split-window \\
+	                      -t "\$session_name":"\$bot_window_name" \\
+	                      -p 30 \\
+	                      -v
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$bot_window_name" \\
+	                   '#/opt/sqldeveloper/sqldeveloper-18.3.0.277.2354-no-jre/sqldeveloper.sh' "\$submit_command_key"
+	    tmux split-window \\
+	                      -t "\$session_name":"\$bot_window_name" \\
+	                      -h
+	    tmux send-keys \\
+	                   -t "\$session_name":"\$bot_window_name" \\
+	                   htop "\$submit_command_key"
+	    local -r workspace_window_name=workspace
+	    tmux new-window \\
+	                    -t "\$session_name" \\
+	                    -n "\$workspace_window_name" \\
+	                    'bash -l'
+	    tmux -u -2 attach-session
+	}
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Auxiliary tmux functions'
+    local -r end_comment='# <END> Auxiliary tmux functions'
+    set_or_replace_block_contents_in_file \
+                                         "${user_home:?}"/.bashrc \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+create_or_update_auxiliary_functions_for_interactive_shells() {
+    local -r dropbox_home_dir=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # shellcheck disable=SC2154
+    check_if_array_variable_set_and_not_empty dropbox_dirpaths "${dropbox_dirpaths[@]}"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    declare -A function_prefices
+    # shellcheck disable=SC2154
+    function_prefices[cd]=cd_
+    # shellcheck disable=SC2154
+    function_prefices[open]=open_
+    declare -A dirpaths
+    # shellcheck disable=SC2154
+    dirpaths[development]=${user_home:?}/Documents/development
+    # shellcheck disable=SC2154
+    dirpaths[java_source_files]=${dirpaths[development]}/java/source_files
+    # shellcheck disable=SC2154
+    dirpaths[groovy_source_files]=${dirpaths[development]}/groovy/source_files
+    # shellcheck disable=SC2154
+    dirpaths[dropbox]=$dropbox_home_dir
+    # Lines starting with # shellcheck are there in order to avoid warnings
+    # popping out when one opens ~/.bashrc in vim.
+    local block_contents
+    set +e
+    read -r -d '' block_contents <<- EOF
+	${function_prefices[cd]}downloads() {
+	    cd "$user_home"/Downloads
+	}
+	${function_prefices[cd]}dropbox() {
+	    cd "${dirpaths[dropbox]}"
+	}
+	${function_prefices[cd]}java_source_files() {
+	    cd "${dirpaths[java_source_files]}"
+	}
+	${function_prefices[cd]}groovy_source_files() {
+	    cd "${dirpaths[groovy_source_files]}"
+	}
+	${function_prefices[cd]}spring() {
+	    cd "${dirpaths[java_source_files]}"/spring
+	}
+	${function_prefices[cd]}python_source_files() {
+	    cd "${dirpaths[development]}"/python/source_files
+	}
+	${function_prefices[cd]}bash_source_files() {
+	    cd "${dirpaths[development]}"/bash/source_files
+	}
+	${function_prefices[cd]}scripts() {
+	    # shellcheck disable=SC2140
+	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[scripts]}"
+	}
+	set_up_my_mint() {
+	    # shellcheck disable=SC2140
+	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[mint_setup_scripts]}/private_laptop"
+	    sudo ./set_up_my_private_mint.bash
+	    cd - >/dev/null
+	}
+	${function_prefices[open]}motivational_video() {
+	    gnome-open "$user_home"/Documents/video/others/'Best Motivational Video - Speeches Compilation 1 Hour Long (HD).mp4'
+	}
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Auxiliary functions'
+    local -r end_comment='# <END> Auxiliary functions'
+    set_or_replace_block_contents_in_file \
+                                         "$user_home"/.bashrc \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    create_or_update_generate_password_function_for_interactive_shells
+    create_or_update_auxiliary_tmux_functions_for_interactive_shells
+}
+
+#-------------------------------------------------------------------------------
+
+configure_pass() {
+    local block_contents
+    set +e
+    read -r -d '' block_contents <<- EOF
+	export PASSWORD_STORE_DIR=$(determine_password_storage_directory_path)
+	export EDITOR=/usr/bin/vim
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Pass configuration'
+    local -r end_comment='# <END> Pass configuration'
+    set_or_replace_block_contents_in_file \
+                                         "$user_home"/.bashrc \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_file_system
+    install_private_laptop_specific_debian_packages
+    install_private_laptop_specific_snap_packages
+    install_private_laptop_specific_python_packages
+    configure_ssh
+    configure_gnupg2
+    install_multimedia_software
+    set_up_backup_process
+    set_up_cinnamon_session_restart_process
+    local -r dropbox_home_dir=$user_home/Documents/Dropbox
+    create_or_update_auxiliary_functions_for_interactive_shells "$dropbox_home_dir"
+    configure_pass
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+install_rambox() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r version=0.7.3
+    local -r app_name=rambox
+    local -r architecture=amd64
+    local -r deb_package_file_name=Rambox-$version-linux-$architecture.deb
+    if ! dpkg --list "$app_name" \
+            | grep "ii\ *$app_name\ *$version-[[:digit:]]*\ *$architecture" > /dev/null; then
+        curl --location \
+             "https://github.com/ramboxapp/community-edition/releases/download/$version/$deb_package_file_name" \
+             --output "$deb_package_file_name"
+        # Uninstalls any another already installed version of the same package.
+        # Consult the manual page of dpkg:
+        #   2. If another version of the same package was installed before the
+        #   new installation, execute prerm script of the old package.
+        #   5. If another version of the same package was installed before the
+        #   new installation, execute the postrm script of the old package.
+        #   Note that this script is executed after the preinst script of the
+        #   new package, because new files are written at the same time old
+        #   files are removed.
+        dpkg --install "$deb_package_file_name"
+        rm "$deb_package_file_name"
+    fi
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    install_rambox
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

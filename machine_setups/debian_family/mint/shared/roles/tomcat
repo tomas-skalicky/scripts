@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+tomcat_packages_to_install=(
+    tomcat8
+    tomcat8-admin
+)
+
+#-------------------------------------------------------------------------------
+
+install_tomcat_packages() {
+    aptget_install "${tomcat_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+configure_tomcat() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r tomcat_user=tomcat8
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r gui_manager_user=tomcat-gui
+    local -r gui_manager_password=tomcat
+    local -r script_manager_user=tomcat-script
+    local -r script_manager_password=tomcat
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r users_filepath=/var/lib/$tomcat_user/conf/tomcat-users.xml
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	<?xml version='1.0' encoding='utf-8'?>
+	<tomcat-users xmlns="http://tomcat.apache.org/xml"
+	              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	              xsi:schemaLocation="http://tomcat.apache.org/xml tomcat-users.xsd"
+	              version="1.0">
+	    <role rolename="manager-gui"/>
+	    <role rolename="manager-script"/>
+	    <user username="$gui_manager_user" password="$gui_manager_password" roles="manager-gui"/>
+	    <user username="$script_manager_user" password="$script_manager_password" roles="manager-script"/>
+	</tomcat-users>
+	EOF
+    set -e
+    set_file_contents \
+                      "$users_filepath" \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r environment_configuration=local
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # shellcheck disable=SC2054
+    local -r catalina_options=(
+        -Xdebug
+        -Xrunjdwp:transport=dt_socket,address=8281,server=y,suspend=n
+    )
+    local -r java_options=(
+        -DDebug
+        -DenvConfiguration="$environment_configuration"
+        -Dfile.encoding=UTF-8
+        -Djava.awt.headless=true
+        -Duser.country=US
+        -Duser.language=en
+        -XX:PermSize=512m
+        -XX:MaxPermSize=512m
+        -XX:MetaspaceSize=512m
+        -XX:MaxMetaspaceSize=512m
+        -XX:ThreadStackSize=1024k
+        -Xms512m
+        -Xmx2048m
+        -server
+    )
+    local -r default_filepath=/etc/default/$tomcat_user
+    set +e
+    read -r -d '' file_contents <<- EOF
+	TOMCAT8_USER=$tomcat_user
+	TOMCAT8_GROUP=$tomcat_user
+	JAVA_OPTS='$(printf '%s ' "${java_options[@]}")'
+	CATALINA_OPTS='$(printf '%s ' "${catalina_options[@]}")'
+	EOF
+    set -e
+    set_file_contents \
+                      "$default_filepath" \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    service tomcat8 restart
+    service tomcat8 stop # We don't want to have tomcat running by default.
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    install_tomcat_packages
+    configure_tomcat
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+main() {
+    echo 'When you need the Oracle database XE, follow the manual on https://github.com/oracle/docker-images/blob/master/OracleDatabase/SingleInstance/README.md'
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

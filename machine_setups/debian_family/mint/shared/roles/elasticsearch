@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+# Based on
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
+
+#-------------------------------------------------------------------------------
+
+configure_elasticsearch_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- 'EOF'
+	deb   https://artifacts.elastic.co/packages/7.x/apt   stable   main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/elastic_7.x.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    wget --quiet https://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
+        | apt-key add -
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_elasticsearch() {
+    aptget_update
+    aptget_install elasticsearch
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_elasticsearch_apt_sources
+    install_elasticsearch
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

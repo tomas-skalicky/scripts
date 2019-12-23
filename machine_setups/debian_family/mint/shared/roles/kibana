@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+# Based on
+# https://www.elastic.co/guide/en/kibana/current/deb.html
+
+#-------------------------------------------------------------------------------
+
+configure_kibana_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- 'EOF'
+	deb   https://artifacts.elastic.co/packages/7.x/apt   stable   main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/elastic_7.x.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    wget --quiet https://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
+        | apt-key add -
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_kibana() {
+    aptget_update
+    aptget_install kibana
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_kibana_apt_sources
+    install_kibana
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

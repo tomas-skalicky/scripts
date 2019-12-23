@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_apt_repository() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    add-apt-repository ppa:git-core/ppa --yes
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+git_packages_to_install=(
+    git
+    git-gui
+    gitk
+    meld
+)
+
+#-------------------------------------------------------------------------------
+
+install_git_packages() {
+    aptget_install "${git_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+configure_git() {
+    git config --global user.name "${user_full_name:?}"
+    git config --global user.email "${user_email:?}"
+
+    git config --global color.ui true
+    git config --global core.autocrlf input
+    git config --global core.editor vim
+    git config --global push.default simple
+
+    # Aliases
+    git config --global alias.logg 'log --oneline --decorate --graph'
+
+    # Enables a reusing of recorded resolution of conflicted merges
+    git config --global rerere.enabled true
+
+    # Configures a difftool.
+    git config --global diff.tool meld
+    # Stops git from asking you for every single file whether you want to
+    # launch Meld or not.
+    git config --global difftool.prompt false
+    # shellcheck disable=SC2016
+    git config --global difftool.meld.cmd 'meld "$LOCAL" "$REMOTE"'
+
+    # Configures a merge tool.
+    git config --global merge.tool meld
+    # shellcheck disable=SC2016
+    git config --global mergetool.meld.cmd 'meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"'
+}
+
+#-------------------------------------------------------------------------------
+
+configure_bash_prompt() {
+    local block_contents
+    set +e
+    # NOTE: Don't replace EOF with 'EOF'. Otherwise, you would come across
+    # encoding problems.
+    read -r -d '' block_contents <<- EOF
+	parse_git_branch() {
+	    git branch 2>/dev/null | grep '^\\\* ' | sed --regexp-extended 's/^\\\* (.*)\$/ (\\\1)/'
+	}
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Current git branch name'
+    local -r end_comment='# <END> Current git branch name'
+    set_or_replace_block_contents_in_file \
+                                          "${user_home:?}"/.bashrc \
+                                          "$block_contents" \
+                                          "$begin_comment" \
+                                          "$end_comment"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_apt_repository
+    aptget_update
+    install_git_packages
+    configure_git
+    configure_bash_prompt
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

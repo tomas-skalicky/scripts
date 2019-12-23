@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+declare -A dropbox_dirpaths
+# shellcheck disable=SC2154
+dropbox_dirpaths[scripts]=scripts
+# shellcheck disable=SC2154
+dropbox_dirpaths[mint_setup_scripts]=${dropbox_dirpaths[scripts]}/machine_setups/debian_family/mint
+
+#-------------------------------------------------------------------------------
+

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#
+# Based on https://www.virtualbox.org/wiki/Linux_Downloads
+#
+
+#-------------------------------------------------------------------------------
+
+configure_virtualbox_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	deb   http://download.virtualbox.org/virtualbox/debian   ${current_ubuntu_distribution_name:?}   contrib
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/virtualbox.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    wget --quiet https://www.virtualbox.org/download/oracle_vbox.asc --output-document=- \
+        | apt-key add -
+    aptkey_adv A2F683C52980AECF
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_virtualbox() {
+    aptget_update
+    aptget_install_unauthenticated \
+                                   virtualbox-qt \
+                                   dkms \
+                                   xserver-xorg-core-lts-vivid
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_virtualbox_apt_sources
+    install_virtualbox
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

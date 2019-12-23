@@ -1,0 +1,332 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+print_message() {
+    local -r severity=$1
+    local -r messages_local=("${@:2}")
+    printf '%s: ' "$severity"
+    printf '%s ' "${messages_local[@]}"
+    printf '\n'
+}
+
+print_info() {
+    local -r messages=("$@")
+    print_message INFO "${messages[@]}"
+}
+
+print_warning() {
+    local -r messages=("$@")
+    print_message WARN "${messages[@]}"
+}
+
+print_error() {
+    local -r messages=("$@")
+    print_message ERROR "${messages[@]}" >&2
+}
+
+print_not_set_variable_error() {
+    local -r variable_name=$1
+    print_error "'$variable_name' variable is either not set or empty"
+}
+
+#-------------------------------------------------------------------------------
+
+check_if_array_variable_set_and_not_empty() {
+    local -r array_name=$1
+    local -r array=("${@:2}")
+    if (( ${#array[@]} == 0 )); then
+        print_error "'$array_name' array is either not set or empty"
+        exit 1
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+does_user_exist() {
+    local -r username=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    id --user "$username" >/dev/null 2>&1
+}
+
+does_user_group_exist() {
+    local -r group_name=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    grep "^$group_name" /etc/group >/dev/null
+}
+
+create_user_group_if_not_exists() {
+    local -r group_name=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if ! does_user_group_exist "$group_name"; then
+        groupadd "$group_name"
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+get_user_home() {
+    local -r username=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    eval echo ~"$username"
+}
+
+set_user_home() {
+    local -r username=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    user_home=$(get_user_home "$username")
+}
+
+#-------------------------------------------------------------------------------
+
+chown_to_user() {
+    local -r file_or_directory_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    chown --recursive "${username:?}":"$username" "$file_or_directory_path"
+}
+
+#-------------------------------------------------------------------------------
+
+reload_profile() {
+    source /etc/profile
+    local -r user_profile="${user_home:?}"/.profile
+    if [[ -f $user_profile ]]; then
+        # The exit-immediately mode cannot be used here due to SDKMAN and
+        # the line 100
+        # DETECT_HTML="$(echo "$SDKMAN_CANDIDATES_CSV" | tr '[:upper:]' '[:lower:]' | grep 'html')"
+        # in ~/.sdkman/bin/sdkman-init.sh which exits with 1 if there is no
+        # html string in *_CSV variable.
+        # shellcheck disable=SC1090
+        source "$user_profile"
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+do_file_contents_action() {
+    local -r filepath=${1:?}
+    local -r file_contents=${2:?}
+    local -r parameter_list=("${@:3}")
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf '\n'
+    printf 'Writing file:\n'
+    printf '==> %s <==\n' "$filepath"
+    set +u
+    printf '%b\n' "$file_contents" \
+    \
+    | tee "${parameter_list[@]}" "$filepath"
+    set -u
+    printf '\n'
+}
+
+set_file_contents() {
+    local -r filepath=${1:?}
+    local -r file_contents=${2:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    do_file_contents_action "$filepath" "$file_contents"
+}
+
+append_file_contents() {
+    local -r filepath=${1:?}
+    local -r file_contents=${2:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    do_file_contents_action "$filepath" "$file_contents" --append
+}
+
+set_or_replace_block_contents_in_file() {
+    local -r filepath=${1:?}
+    local -r block_contents=${2:?}
+    local -r begin_comment=${3:?}
+    local -r end_comment=${4:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if grep "$begin_comment" "$filepath" >/dev/null; then
+        local -r tmp_filepath=${filepath}_tmp.$$
+        set_file_contents "$tmp_filepath" "$block_contents"
+        # NOTE: 0 in the first interval is essential! If you used 1 instead of
+        # 0, the $begin_comment would be looked for up to the 2nd line. It
+        # follows that if the $begin_comment were on the very first line, the
+        # interval 1,$begin_commend would match at least two lines, but at
+        # the worst case it would match the whole file.
+        # NOTE: This temporary-file workaround is used since 'a' command of
+        # 'sed' expects backslash at the end of each line of appended text.
+        # see 'man sed | less +/\ \ \ a\ '
+        sed --in-place \
+            --quiet \
+            --expression="0,/$begin_comment/ {p}" \
+            --expression="/$begin_comment/ r $tmp_filepath" \
+            --expression="/$end_comment/,$ {p}" \
+            "$filepath"
+        rm --verbose "$tmp_filepath"
+    else
+        append_file_contents "$filepath" "$begin_comment"\\n"$block_contents"\\n"$end_comment"
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+create_or_update_generate_password_function_for_interactive_shells() {
+    local block_contents
+    set +e
+    read -r -d '' block_contents <<- 'EOF'
+	generate_password() {
+	    # If there is no argument, the function returns the whole generated
+	    # sequence.
+	    local -r length=$1
+	    openssl rand -base64 48 | cut --characters=1-"$length"
+	}
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Generate Password function'
+    local -r end_comment='# <END> Generate Password function'
+    set_or_replace_block_contents_in_file \
+                                          "$user_home"/.bashrc \
+                                          "$block_contents" \
+                                          "$begin_comment" \
+                                          "$end_comment"
+}
+
+create_or_update_common_auxiliary_tmux_functions_for_interactive_shells() {
+    local block_contents
+    set +e
+    # Don't replace EOF with 'EOF'. Otherwise, you would have to replace all \$
+    # with $.
+    read -r -d '' block_contents <<- EOF
+	get_new_tmux_session_name() {
+	    local -r existing_sessions_filepath=/tmp/existing_sessions.\$\$
+	    tmux list-sessions -F '#{session_name}' > "\$existing_sessions_filepath"
+	    local -r session_name_prefix=${username:?}_session_
+	    local -r max_tmux_session_number=1
+	    for i in \$(seq 0 "\$max_tmux_session_number"); do
+	        local current_name=\${session_name_prefix}\$i
+	        if ! grep "\$current_name" "\$existing_sessions_filepath" >/dev/null; then
+	            echo "\$current_name"
+	            rm "\$existing_sessions_filepath"
+	            return
+	        fi
+	    done
+	    printf '%s: %s [%d].\\\n' ERROR \\
+	                              'To many existing tmux sessions' \\
+	                              \$((max_tmux_session_number + 1))
+	    rm "\$existing_sessions_filepath"
+	    exit 1
+	}
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Common auxiliary tmux functions'
+    local -r end_comment='# <END> Common auxiliary tmux functions'
+    set_or_replace_block_contents_in_file \
+                                         "${user_home:?}"/.bashrc \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+# Does not delete the local master and current branch.
+delete_git_local_branches_if_merged_to_master() {
+    while read -r branch_name; do
+        git branch --verbose -D "$branch_name"
+    done < <(git branch --merged origin/master \
+        | grep --invert-match --extended-regexp '^\*|[[:space:]]master')
+}
+
+git_repo_clone_or_pull() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r remote_repo_url=${1:?}
+    local -r clone_directory=${2:?}
+    local -r clone_owner=${3:-$username}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf '\n'
+    local -r file_with_ssh_variables=$user_home/.keychain/${HOSTNAME}-sh
+    if [[ ! -d $clone_directory/.git ]]; then
+        print_info "Repo ${remote_repo_url#*/} is being cloned..."
+        if [[ -n $clone_owner ]]; then
+            # shellcheck disable=SC2016
+            sudo --user="$clone_owner" \
+                bash -c 'source "$1";
+                         git clone "$2" "$3"' \
+                         _ "$file_with_ssh_variables" "$remote_repo_url" "$clone_directory"
+        else
+            git clone "$remote_repo_url" "$clone_directory"
+        fi
+    else
+        print_info "Repo ${remote_repo_url#*/} is being pulled..."
+        if [[ -n $clone_owner ]]; then
+            # In order to make keychain working, it is necessary to source the
+            # current SSH_* variables.
+            # --preserve-env option doesn't work since the script is executing
+            # sudo as root having difference environment.
+            # --login option doesn't work either since SSH_* variables are
+            # removed from environment (see below).
+            # --preserve-env ... Indicates to the security policy that the user
+            #                    wishes to preserve their existing environment
+            #                    variables.  The security policy may return
+            #                    an error if the user does not have permission
+            #                    to preserve the environment.
+            # --login ... Run the shell specified by the target user's password
+            #             database entry (/etc/passwd) as a login shell.
+            #             This means that login-specific resource files such
+            #             as .profile or .login will be read by the shell.
+            #             If a command is specified, it is passed to the shell
+            #             for execution via the shell's -c option.
+            #             If no command is specified, an interactive shell is
+            #             executed.
+            #             sudo attempts to change to that user's home directory
+            #             before running the shell.
+            #             The command is run with an environment similar to the
+            #             one a user would receive at log in. The DISPLAY, PATH
+            #             and TERM variables remain unchanged; HOME, MAIL,
+            #             SHELL, USER, and LOGNAME are set based on the target
+            #             user. All other environment variables are removed.
+            # shellcheck disable=SC2016
+            sudo --user="$clone_owner" \
+                bash -c 'source "$1";
+                         source "$2";
+                         cd "$3";
+                         git remote set-url origin "$4";
+                         git fetch --prune;
+                         delete_git_local_branches_if_merged_to_master;
+                         git pull;
+                         git gc' \
+                         _ "$file_with_ssh_variables" "${bash_utilities_file_path:?}" "$clone_directory" "$remote_repo_url"
+        else
+            (
+              cd "$clone_directory"
+              git remote set-url origin "$remote_repo_url"
+              git fetch --prune
+              delete_git_local_branches_if_merged_to_master
+              git pull
+              git gc
+            )
+        fi
+    fi
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+create_or_update_symbolic_link() {
+    local -r linked_filepath=${1:?}
+    local -r link_filepath=${2:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [[ -L $link_filepath ]] && unlink "$link_filepath"
+    ln --verbose --symbolic "$linked_filepath" "$link_filepath"
+}
+
+#-------------------------------------------------------------------------------
+
+remove_lines_with_prefixes_from_file() {
+    local -r filepath=${1:?}
+    local -r prefixes_of_lines_to_remove_local=("${@:2}")
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    for prefix in "${prefixes_of_lines_to_remove_local[@]}"; do
+        sed --in-place "/^$prefix/ d" "$filepath"
+    done
+}
+
+#-------------------------------------------------------------------------------
+

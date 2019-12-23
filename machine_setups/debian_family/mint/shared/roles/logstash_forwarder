@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+# Based on
+# https://www.elastic.co/guide/en/logstash/current/installing-logstash.html and
+# https://www.digitalocean.com/community/tutorials/how-to-use-logstash-and-kibana-to-centralize-and-visualize-logs-on-ubuntu-14-04
+
+#-------------------------------------------------------------------------------
+
+cert_file_path_arg=${1:?}
+
+configure_logstash_forwarder_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- 'EOF'
+	deb   http://artifacts.elastic.co/packages/7.x/apt   stable   main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/elastic_7.x.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    wget --quiet http://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
+        | apt-key add -
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_logstash_forwarder() {
+    aptget_update
+    aptget_install logstash
+}
+
+#-------------------------------------------------------------------------------
+
+create_logstash_forwarder_ssl_certificate() {
+    local -r cert_file_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r certs_dir_path=${cert_file_path%/*}
+    local -r tls_dir_path=${certs_dir_path%/*}
+    local -r private_keys_dir_path=$tls_dir_path/private
+    mkdir --parents "$certs_dir_path" "$private_keys_dir_path"
+    cp --verbose ../shared/static/logstash_forwarder.crt "$cert_file_path"
+    cp --verbose ../shared/static/logstash_forwarder.private.key "$private_keys_dir_path"/logstash-forwarder.key
+}
+
+#-------------------------------------------------------------------------------
+
+install_logstash_forwarder_init_script() {
+    local -r initd_dir_path=/etc/init.d
+    local -r service_name=logstash-forwarder
+    local -r target_file_path=$initd_dir_path/$service_name
+    cp --verbose ../shared/static/logstash_forwarder.init "$target_file_path"
+    chmod +x "$target_file_path"
+    set +u
+    (
+        cd "$initd_dir_path"
+        update-rc.d "$service_name" defaults
+    )
+    set -u
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    service "$service_name" stop
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    local -r cert_file_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    configure_logstash_forwarder_apt_sources
+    install_logstash_forwarder
+    create_logstash_forwarder_ssl_certificate "$cert_file_path"
+    install_logstash_forwarder_init_script
+}
+
+#-------------------------------------------------------------------------------
+
+main "$cert_file_path_arg"
+

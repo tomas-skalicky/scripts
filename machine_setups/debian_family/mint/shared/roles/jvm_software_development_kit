@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+development_kit_to_install_or_update=${1:?}
+
+#-------------------------------------------------------------------------------
+
+install_or_update_sdkman() {
+    curl --silent https://get.sdkman.io | sudo --user="${username:?}" bash
+    sudo --user="${username:?}" bash -c "source \"${user_home:?}\"/.sdkman/bin/sdkman-init.sh;
+                                         sdk update"
+}
+
+#-------------------------------------------------------------------------------
+
+install_or_update_development_kit() {
+    local -r development_kit_to_install_or_update=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # `bash -l' to get `sdk' command.
+    sudo --user="${username:?}" bash -l -c "# The first execution of
+                                            # ``sdk current <development_kit>'
+                                            # is to see the name of the kit and
+                                            # the version on the command line.
+                                            sdk current '$development_kit_to_install_or_update';
+                                            if sdk current '$development_kit_to_install_or_update' | grep 'Not using any version of $development_kit_to_install_or_update' >/dev/null; then
+                                                sdk install '$development_kit_to_install_or_update';
+                                            fi"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    local -r development_kit_to_install_or_update=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    install_or_update_sdkman
+    install_or_update_development_kit "$development_kit_to_install_or_update"
+}
+
+#-------------------------------------------------------------------------------
+
+main "$development_kit_to_install_or_update"
+

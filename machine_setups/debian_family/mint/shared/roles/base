@@ -1,0 +1,174 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+aptfile_update() {
+    printf 'Resynchronizing the package contents (contained files) from package sources...\n'
+    if apt-file \
+                update
+    then
+        outcome='done'
+    else
+        outcome=ERROR
+    fi
+    printf ' %s\n' "$outcome"
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+configure_base_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Official repositories must be listed in
+    # /etc/apt/sources.list.d/official-package-repositories.list in order to be
+    # found by 'Software Sources' Mint tool.
+    #
+    # Used ; (semicolor) as a separator
+    sed \
+        --in-place \
+        's;http://packages.linuxmint.com;http://ftp.fau.de/mint/packages;' \
+        /etc/apt/sources.list.d/official-package-repositories.list
+    sed \
+        --in-place \
+        's;http://archive.ubuntu.com/ubuntu;http://ftp-stud.hs-esslingen.de/ubuntu;' \
+        /etc/apt/sources.list.d/official-package-repositories.list
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    aptkey_adv 3EE67F3D0FF405B2
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+packages_to_install=(
+    ack-grep                    # Search tool with a nice output similar to grep
+    apt-file
+    curl
+    dirmngr                     # Necessary for gnupg2
+    doublecmd-gtk               # Similar to Window Total commander
+    dropbox
+    dstat                       # Versatile tool for generating system resource statistics (replacement of vmstat, iostat and ifstat)
+    exfat-fuse                  # Necessary for SD cards
+    exfat-utils                 # Necessary for SD cards
+    exiv2                       # Image metadata manipulation tool. Useful for file renaming when metadata used.
+    figlet                      # Program which creates large characters out of ordinary screen characters.
+    git                         # Git (any version) must already be installed here because of syntastic
+    glances                     # Curses-based monitoring tool
+    gnupg2                      # GnuPG 2.x is the new modularized version of GnuPG supporting OpenPGP
+    heirloom-mailx              # Send and receive email. It is possible to use remove SMTP server
+    htop
+    iftop                       # Display bandwidth usage on an interface
+    inetutils-traceroute        # The package contains traceroute: displays the route taken by IP packets on their way to another host or another network.
+    jmeter
+    jmeter-http
+    jq                          # JSON processor
+    keychain                    # Re-use ssh-agent between logins
+    libxml-xpath-perl           # The package contains XPath
+    lnav                        # Log file viewew with highlighting and filtering.
+    moreutils                   # The package contains chronic: runs a command quietly unless it fails
+    multitail                   # Program which lets you view one or multiple files like the original tail program.
+    nmap                        # Port scanner
+    'python3.7'
+    python3-pip                 # Python3 package manager
+    python3-tk                  # A module for writing portable GUI applications with Python 3.x using Tk.
+    realpath                    # Utility which converts each pathname argument to an absolute pathname which has no components that are symbolic links or the special . or .. direstory entries.
+    rsync
+    shellcheck                  # A shell script static analysis tool
+    snapd                       # Package manager. Something like an app store for linux. Used for applications like journey.
+    sudo
+    swaks                       # Swiss Army Knife SMTP, the all-purpose SMTP transaction tester. Example: swaks --to xyz@gmail.com --server smtp.google.com
+    tmux
+    tree
+    unzip
+    vim
+    xloadimage                  # Graphics file viewer under X11. Used by gpg2
+    xmlstarlet                  # XML/XSLT toolkit. It does not support XPath 2.0 and XSLT 2.0
+)
+
+#-------------------------------------------------------------------------------
+
+install_packages() {
+    aptget_update
+    aptget_upgrade
+    aptget_install "${packages_to_install[@]}"
+    aptfile_update
+
+    # Removes packages that were automatically installed to satisfy
+    # dependencies for other packages and are now no longer needed.
+    apt-get autoremove
+
+    # Clears out the local repository of retrieved package files. It only
+    # removes package files that can no longer be downloaded, and are largely
+    # useless.
+    apt-get autoclean
+}
+
+#-------------------------------------------------------------------------------
+
+configure_syntastic_vim_plugin() {
+    local -r autoload_dir=${user_home:?}/.vim/autoload
+    local -r bundle_dir=${user_home:?}/.vim/bundle
+    sudo --user="${username:?}" mkdir --parents "$autoload_dir" "$bundle_dir"
+    sudo --user="${username:?}" curl \
+         --silent \
+         --show-error \
+         --location \
+         --output "$autoload_dir"/pathogen.vim \
+         https://tpo.pe/pathogen.vim
+    git_repo_clone_or_pull https://github.com/scrooloose/syntastic.git "$bundle_dir"/syntastic
+}
+
+configure_vim() {
+    files_or_dirs_to_copy=(
+        .vim
+        .vimrc
+    )
+    printf 'Configuration files of vim copied:\n'
+    for file in "${files_or_dirs_to_copy[@]}"; do
+        cp --verbose --recursive ../../../static/"$file" "${user_home:?}/"
+        chown_to_user "${user_home:?}/$file"
+    done
+    configure_syntastic_vim_plugin
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+configure_tmux() {
+    files_to_copy=(
+        .tmux.conf
+        .tmux.conf.extension
+    )
+    printf 'Configuration files of tmux copied:\n'
+    for file in "${files_to_copy[@]}"; do
+        cp --verbose ../../../static/"$file" "${user_home:?}/"
+        chown_to_user "${user_home:?}/$file"
+    done
+    printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+reload_profile() {
+    set +u
+    source /etc/profile
+    # shellcheck disable=SC1090
+    source "${user_home:?}"/.profile
+    set -u
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_base_apt_sources
+    install_packages
+
+    configure_vim
+    configure_tmux
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

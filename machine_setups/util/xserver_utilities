@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+prepare_and_set_user_folders() {
+    local -r username=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    set_user_home "$username"
+    user_downloads=${user_home:?}/Downloads
+    mkdir --parents --verbose "$user_downloads"
+}
+
+#-------------------------------------------------------------------------------
+

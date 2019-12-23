@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_xserver_repositories() {
+    # See information about the current official version and current long-lived
+    # branch version on
+    # https://launchpad.net/~graphics-drivers/+archive/ubuntu/ppa
+    add-apt-repository ppa:graphics-drivers/ppa --yes
+}
+
+#-------------------------------------------------------------------------------
+
+okular_specific_packages_to_install=(
+    okular
+    kdelibs-bin
+    kdelibs5-data
+    kdelibs5-plugins
+)
+
+xserver_specific_packages_to_install=(
+    "${okular_specific_packages_to_install[@]}"
+    libgnome2-bin               # In order to be able to use gnome-open
+    oxygen-icon-theme
+    ksnapshot                   # Enables taking a snapshots of selected rectangle region
+)
+
+#-------------------------------------------------------------------------------
+
+install_xserver_specific_packages() {
+    aptget_install "${xserver_specific_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+configure_default_applications() {
+    # NOTE: Workaround for cases when gio is not available.
+    if which gio; then
+        gio mime application/pdf okularApplication_pdf.desktop
+    else
+        gvfs-mime --set application/pdf kde4-okular.desktop
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+are_microsoft_truetype_fonts_installed_successfully() {
+    fc-match Arial | grep Arial >/dev/null
+}
+
+install_microsoft_fonts() {
+    # Since the installer package is broken Mint 18.1, it's necessary to
+    # download the DEB package manually (see
+    # https://forums.linuxmint.com/viewtopic.php?t=229085)
+    if are_microsoft_truetype_fonts_installed_successfully; then
+        print_info 'Microsoft TrueType fonts have been already installed.'
+    else
+        local -r deb_package_name=ttf-mscorefonts-installer_3.6_all.deb
+        local -r downloaded_package_file_path=/tmp/$deb_package_name
+        wget --quiet --output-document="$downloaded_package_file_path" http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/"$deb_package_name"
+        dpkg --install "$downloaded_package_file_path"
+        rm --force "$downloaded_package_file_path"
+        if are_microsoft_truetype_fonts_installed_successfully; then
+            print_info 'Microsoft TrueType fonts have been successfully installed.'
+        else
+            print_warning 'Installation of Microsoft TrueType fonts have failed.'
+        fi
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+configure_bash_prompt() {
+    local block_contents
+    set +e
+    # NOTE: Don't replace EOF with 'EOF'. Otherwise, you would come across
+    # encoding problems.
+    read -r -d '' block_contents <<- EOF
+	determine_prompt() {
+	    local -r exit_code="\$?"
+	    # Colors
+	    local -r default='\\\[\\\e[m\\\]'
+	    local -r light_red='\\\[\\\e[1;31m\\\]'
+	    local -r red_background='\\\[\\\e[7;31m\\\]'
+	    local -r dark_green='\\\[\\\e[1;32m\\\]'
+	    local -r light_blue='\\\[\\\e[1;34m\\\]'
+	    local -r gray_italic='\\\[\\\e[3;37m\\\]'
+	    if [[ \$exit_code != 0 ]]; then
+	        local -r exit_code_part="\${red_background}\$exit_code\${default} "
+	    else
+	        local -r exit_code_part="\${default}\$exit_code\${default} "
+	    fi
+	    # shellcheck disable=SC2154
+	    PS1="\${debian_chroot:+(\$debian_chroot)}\$exit_code_part\${gray_italic}\\\t\${default} \${dark_green}\\\u@\\\h\${default}:\${light_blue}\\\w\${default}\${light_red}\$(parse_git_branch)\${default}\\\$ "
+	}
+	PROMPT_COMMAND=determine_prompt
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Configure prompt'
+    local -r end_comment='# <END> Configure prompt'
+    set_or_replace_block_contents_in_file \
+                                          "${user_home:?}"/.bashrc \
+                                          "$block_contents" \
+                                          "$begin_comment" \
+                                          "$end_comment"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_xserver_repositories
+    aptget_update
+    aptget_upgrade
+    install_xserver_specific_packages
+    configure_default_applications
+    source ../shared/roles/google-chrome
+    install_microsoft_fonts
+    configure_bash_prompt
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

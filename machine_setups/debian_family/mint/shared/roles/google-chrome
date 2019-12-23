@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_chrome_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- 'EOF'
+	deb   http://dl.google.com/linux/chrome/deb/   stable   main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/google-chrome.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    wget \
+         --quiet \
+         --output-document=- \
+         https://dl-ssl.google.com/linux/linux_signing_key.pub \
+    | \
+    apt-key add -
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+chrome_packages_to_install=(
+    google-chrome-stable
+)
+
+#-------------------------------------------------------------------------------
+
+install_chrome_packages() {
+    aptget_update
+    aptget_install "${chrome_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_chrome_apt_sources
+    install_chrome_packages
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

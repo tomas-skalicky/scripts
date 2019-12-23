@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+# The strict mode ("set -u") causes the script to exit immediately if any
+# unset variable is met. Therefore, a default value of
+# gw_repo_clone_destination (empty string) is provided.
+gw_repo_clone_destination=${1:-}
+
+#-------------------------------------------------------------------------------
+
+# shellcheck disable=SC2120
+install_gradle() {
+    # shellcheck source=jvm_software_development_kit
+    source ../shared/roles/jvm_software_development_kit gradle
+}
+
+#-------------------------------------------------------------------------------
+
+configure_gw() {
+    local -r gw_repo_clone_destination_intern=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r gw_repo_clone_dir_path=$gw_repo_clone_destination_intern/gdub
+    git_repo_clone_or_pull https://github.com/dougborg/gdub.git "$gw_repo_clone_dir_path"
+    "$gw_repo_clone_dir_path"/install
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    local -r gw_repo_clone_destination_intern=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # shellcheck disable=SC2119
+    install_gradle
+    if [[ -n $gw_repo_clone_destination_intern ]]; then
+        configure_gw "$gw_repo_clone_destination_intern"
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+main "$gw_repo_clone_destination"
+

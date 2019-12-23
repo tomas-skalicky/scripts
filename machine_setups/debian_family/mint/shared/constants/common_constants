@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+# shellcheck disable=SC2034
+additional_software_root=/opt
+
+#-------------------------------------------------------------------------------
+
+# shellcheck disable=SC2034
+ubuntu_14_04_distribution_name=trusty
+# shellcheck disable=SC2034
+current_ubuntu_distribution_name=xenial
+
+# NOTE: The current Mint distribution name is not directly referenced on any
+# place in the code. The reason is that if the distribution name is set to the
+# newer Mint version than the system is actually on, the Mint upgrade tools
+# will not be able to recognize the actual Mint version any more and will not
+# offer the upgrade to the newer Mint version.
+
+#-------------------------------------------------------------------------------
+
+# shellcheck disable=SC2034
+ssh_utilities_file_path=$(realpath ../../../../bash/util/ssh_utilities)
+
+#-------------------------------------------------------------------------------
+

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#==============================================================================
+
+#------------------------------------------------------------------------------
+
+refresh_ssh_known_host_and_execute_ssh() {
+    local -r host_fqdn=${1:?}
+    local -r args=("${@:2}")
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r known_hosts_file_path=~/.ssh/known_hosts
+    ssh-keygen -f "$known_hosts_file_path" -R "$host_fqdn"
+    ssh-keygen -f "$known_hosts_file_path" -R "$(dig +short "$host_fqdn")"
+    source ~/.keychain/"$HOSTNAME"-sh
+    # shellcheck disable=SC2029
+    ssh -o StrictHostKeyChecking=no "$host_fqdn" "${args[@]}"
+}
+
+refresh_ssh_known_host() {
+    local -r host_fqdn=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    refresh_ssh_known_host_and_execute_ssh "$host_fqdn" hostname
+}
+
+#------------------------------------------------------------------------------
+

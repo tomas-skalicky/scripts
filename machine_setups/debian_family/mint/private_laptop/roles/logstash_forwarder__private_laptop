@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+# Based on
+# https://www.digitalocean.com/community/tutorials/how-to-use-logstash-and-kibana-to-centralize-and-visualize-logs-on-ubuntu-14-04
+
+#-------------------------------------------------------------------------------
+
+cert_file_path_arg=${1:?}
+
+#-------------------------------------------------------------------------------
+
+configure_logstash_forwarder() {
+    local -r cert_file_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	{
+	    "network": {
+	        "servers": [ "localhost:5000" ],
+	        "timeout": 15,
+	        "ssl ca": "$cert_file_path"
+	    },
+	    "files": [
+	        {
+	            "paths": [
+	                "${user_home:?}/Documents/development/java/source_files/spring/SVNavigatoru/SVNavigatoru-Maven/target/tomcat/logs/svnavigatoru600.log"
+	            ],
+	            "fields": { "type": "tomcat" }
+	        }
+	    ]
+	}
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/logstash-forwarder \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    local -r cert_file_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    configure_logstash_forwarder "$cert_file_path"
+}
+
+#-------------------------------------------------------------------------------
+
+main "$cert_file_path_arg"
+

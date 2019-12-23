@@ -1,0 +1,5 @@
+# The folder "check24" contains scripts to set up environment of my Check24
+# laptop. hence this folder is git-ignored not to be published along with
+# the rest of the git repository.
+check24/
+

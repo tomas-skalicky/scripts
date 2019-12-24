@@ -30,7 +30,7 @@ configure_gw() {
 #-------------------------------------------------------------------------------
 
 main() {
-    local -r gw_repo_clone_destination_intern=${1:?}
+    local -r gw_repo_clone_destination_intern=${1:-}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # shellcheck disable=SC2119
     install_gradle

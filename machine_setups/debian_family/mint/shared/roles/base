@@ -66,6 +66,7 @@ packages_to_install=(
     keychain                    # Re-use ssh-agent between logins
     libxml-xpath-perl           # The package contains XPath
     lnav                        # Log file viewew with highlighting and filtering.
+    mintreport                  # Troubleshooting tool for Linux Mint providing "System Reports" with "Detected problems"
     moreutils                   # The package contains chronic: runs a command quietly unless it fails
     multitail                   # Program which lets you view one or multiple files like the original tail program.
     nmap                        # Port scanner

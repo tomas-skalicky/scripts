@@ -7,4 +7,4 @@ This repository contains scripts which I use
 - to start a Docker container with Sonatype Nexus,
 - ...
 
-There are no credentials, private keys or other types of securities added to git index.
+There are no credentials, private keys or other types of securities added to git index to not to accidentaly publish them.

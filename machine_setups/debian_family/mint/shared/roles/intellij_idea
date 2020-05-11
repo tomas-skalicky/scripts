@@ -148,6 +148,23 @@ install_idea() {
 
 #-------------------------------------------------------------------------------
 
+configure_java_for_idea() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r java_major_version=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/profile.d/intellij_idea_environment.sh
+    set +e
+    read -r -d '' file_contents <<- EOF
+	export IDEA_JDK=/usr/lib/jvm/java-${java_major_version}-openjdk-amd64
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+}
+
+#-------------------------------------------------------------------------------
+
 check_license_version() {
     local -r license_version=${1:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,6 +183,7 @@ main() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     install_inotify
     install_idea "$license_version"
+    configure_java_for_idea 11
 }
 
 #-------------------------------------------------------------------------------

@@ -40,10 +40,6 @@ main() {
     source ../shared/roles/secured_functions
     source ../shared/roles/base
     source ../shared/roles/openjdk
-    # Necessary to be able to start an IntelliJ IDEA.
-    # Otherwise, "Caused by: java.lang.ClassNotFoundException:
-    # com.sun.java.swing.plaf.windows.WindowsLookAndFeel"
-    source ../shared/roles/java 8
     source ../shared/roles/jvm_software_development_kit groovy
     source ../shared/roles/jvm_software_development_kit maven
     source ../shared/roles/gradle "${user_home:?}"/Documents/development/gradle

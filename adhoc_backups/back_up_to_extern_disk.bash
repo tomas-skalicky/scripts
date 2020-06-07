@@ -85,6 +85,7 @@ rsync --archive \
       --exclude home/"$username"/.gradle/caches/ \
       --exclude home/"$username"/.gradle/gradle/dists/ \
       --exclude home/"$username"/.gradle/wrapper/dists/ \
+      --exclude home/"$username"/.npm/ \
       --exclude home/"$username"/.sdkman/archives/ \
       --exclude home/"$username"/.sdkman/candidates/groovy/ \
       --exclude lost\+found/ \

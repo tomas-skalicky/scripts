@@ -95,7 +95,6 @@ rsync --archive \
       --exclude run/ \
       --exclude sys/ \
       --exclude tmp/ \
-      --exclude usr/ \
       --exclude var/tmp/ \
       / \
       "$backup_dir_path"

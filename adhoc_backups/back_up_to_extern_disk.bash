@@ -88,6 +88,7 @@ rsync --archive \
       --exclude home/"$username"/.npm/ \
       --exclude home/"$username"/.sdkman/archives/ \
       --exclude home/"$username"/.sdkman/candidates/groovy/ \
+      --exclude home/"$username"/.tldr/cache/ \
       --exclude lost\+found/ \
       --exclude media/ \
       --exclude mnt/ \

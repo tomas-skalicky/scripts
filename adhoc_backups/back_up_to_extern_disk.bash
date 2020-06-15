@@ -72,10 +72,7 @@ set +e
 # /usr excluded since the backup process froze multiple times within
 # this folder.
 rsync --archive \
-      --verbose \
       --delete-after \
-      --log-file="$rsync_log_file_path" \
-      --stats \
       --exclude backup/ \
       --exclude cdrom/ \
       --exclude dev/ \
@@ -97,6 +94,9 @@ rsync --archive \
       --exclude sys/ \
       --exclude tmp/ \
       --exclude var/tmp/ \
+      --log-file="$rsync_log_file_path" \
+      --stats \
+      --verbose \
       / \
       "$backup_dir_path"
 set -e

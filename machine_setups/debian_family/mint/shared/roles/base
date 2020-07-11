@@ -70,7 +70,6 @@ packages_to_install=(
     moreutils                   # The package contains chronic: runs a command quietly unless it fails
     multitail                   # Program which lets you view one or multiple files like the original tail program.
     nmap                        # Port scanner
-    'python3.7'
     python3-pip                 # Python3 package manager
     python3-tk                  # A module for writing portable GUI applications with Python 3.x using Tk.
     realpath                    # Utility which converts each pathname argument to an absolute pathname which has no components that are symbolic links or the special . or .. direstory entries.

@@ -43,6 +43,7 @@ main() {
     source ../shared/roles/jvm_software_development_kit groovy
     source ../shared/roles/jvm_software_development_kit maven
     source ../shared/roles/gradle "${user_home:?}"/Documents/development/gradle
+    source ../shared/roles/python
     source ../shared/roles/node
     source ../shared/roles/eclipse
     source ../shared/roles/intellij_idea IC

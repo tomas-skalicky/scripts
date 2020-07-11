@@ -186,24 +186,6 @@ set_up_backup_process() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
-set_up_cinnamon_session_restart_process() {
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    local -r filepath=/etc/cron.d/cinnamon_session_restart
-    local file_contents
-    # The CRON task kills the current Cinnamon session and a new one is
-    # automatically created. It is a workaround for a CPU issue.
-    set +e
-    read -r -d '' file_contents <<- EOF
-	0 */3 * * *  root   ps aux | grep 'cinnamon --sm-client-id ' | grep --invert-match 'grep' | tr --squeeze-repeats ' ' | cut --delimiter=' ' --fields=2 | xargs kill -KILL
-	EOF
-    set -e
-    set_file_contents \
-                      "$filepath" \
-                      "$file_contents"
-    chmod 644 "$filepath"
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-}
-
 #-------------------------------------------------------------------------------
 
 create_or_update_auxiliary_tmux_functions_for_interactive_shells() {
@@ -408,7 +390,6 @@ main() {
     configure_gnupg2
     install_multimedia_software
     set_up_backup_process
-    set_up_cinnamon_session_restart_process
     local -r dropbox_home_dir=$user_home/Documents/Dropbox
     create_or_update_auxiliary_functions_for_interactive_shells "$dropbox_home_dir"
     configure_pass

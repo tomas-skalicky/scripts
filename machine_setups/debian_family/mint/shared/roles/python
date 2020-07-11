@@ -6,7 +6,8 @@
 
 upgrade_python_packages() {
     print_info 'Python packages are being updated:'
-    # "Exit" mode turned off due to failing of upgrade of some Python packages
+    # "Exit immediately" mode turned off due to some Python packages failing
+    # during their upgrade
     set +e
     pip3 list --outdated --format=freeze \
         | grep --invert-match '^\-e' \

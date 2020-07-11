@@ -76,7 +76,6 @@ packages_to_install=(
     realpath                    # Utility which converts each pathname argument to an absolute pathname which has no components that are symbolic links or the special . or .. direstory entries.
     rsync
     shellcheck                  # A shell script static analysis tool
-    snapd                       # Package manager. Something like an app store for linux. Used for applications like journey.
     sudo
     swaks                       # Swiss Army Knife SMTP, the all-purpose SMTP transaction tester. Example: swaks --to xyz@gmail.com --server smtp.google.com
     tmux

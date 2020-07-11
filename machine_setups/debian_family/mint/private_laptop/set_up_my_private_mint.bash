@@ -58,7 +58,6 @@ main() {
     source ../shared/roles/xserver
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
-    source ../shared/roles/mysql
     source ../shared/roles/elasticsearch
     source ../shared/roles/kibana
     local -r logstash_forwarder_cert_file_path=/etc/pki/tls/certs/logstash-forwarder.crt

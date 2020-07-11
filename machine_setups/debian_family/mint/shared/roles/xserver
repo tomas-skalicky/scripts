@@ -15,15 +15,14 @@ configure_xserver_repositories() {
 
 okular_specific_packages_to_install=(
     okular
-    kdelibs-bin
     kdelibs5-data
 )
 
 xserver_specific_packages_to_install=(
     "${okular_specific_packages_to_install[@]}"
+    kde-spectacle               # Enables taking a screenshots of selected rectangle region
     libgnome2-bin               # In order to be able to use gnome-open
     oxygen-icon-theme
-    ksnapshot                   # Enables taking a snapshots of selected rectangle region
 )
 
 #-------------------------------------------------------------------------------

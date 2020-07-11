@@ -17,7 +17,6 @@ okular_specific_packages_to_install=(
     okular
     kdelibs-bin
     kdelibs5-data
-    kdelibs5-plugins
 )
 
 xserver_specific_packages_to_install=(

@@ -20,7 +20,6 @@ okular_specific_packages_to_install=(
 
 xserver_specific_packages_to_install=(
     "${okular_specific_packages_to_install[@]}"
-    kde-spectacle               # Enables taking a screenshots of selected rectangle region
     libgnome2-bin               # In order to be able to use gnome-open
     oxygen-icon-theme
 )

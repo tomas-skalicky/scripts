@@ -6,10 +6,13 @@
 
 upgrade_python_packages() {
     print_info 'Python packages are being updated:'
+    # "Exit" mode turned off due to failing of upgrade of some Python packages
+    set +e
     pip3 list --outdated --format=freeze \
         | grep --invert-match '^\-e' \
         | cut --delimiter='=' --fields=1 \
         | xargs --max-args=1 pip3 install --upgrade
+    set -e
 }
 
 #-------------------------------------------------------------------------------

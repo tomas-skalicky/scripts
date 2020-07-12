@@ -45,25 +45,16 @@ main() {
     source ../shared/roles/jvm_software_development_kit maven
     source ../shared/roles/gradle "${user_home:?}"/Documents/development/gradle
     source ../shared/roles/node
-    source ../shared/roles/eclipse
     source ../shared/roles/intellij_idea IC
     source ../shared/roles/pycharm community
-    source ../shared/roles/tomcat
     source ../shared/roles/git
     source ../shared/roles/docker
-    source ../shared/roles/oracle_xe
     source ../shared/roles/rambox
     # Needed for video calls which rambox cannot serve yet.
     source ../shared/roles/skype
     source ../shared/roles/xserver
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
-    source ../shared/roles/elasticsearch
-    source ../shared/roles/kibana
-    local -r logstash_forwarder_cert_file_path=/etc/pki/tls/certs/logstash-forwarder.crt
-    source roles/logstash_forwarder__private_laptop "$logstash_forwarder_cert_file_path"
-    source ../shared/roles/logstash_forwarder "$logstash_forwarder_cert_file_path"
-    source ../shared/roles/ledger_wallet
     source roles/private_laptop
     # Upgrade of Python packages is at the end of the set-up script
     # because it takes a fair amount of time and it is not critical.

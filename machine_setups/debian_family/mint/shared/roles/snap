@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+# Based on https://financemarkethouse.com/2020/06/12/how-to-enable-snap-and-install-snap-packages-on-linux-mint-20/
+enable_snap_support() {
+    print_info 'Enabling snap support by deleting nosnap.pref file:'
+    rm --force /etc/apt/preferences.d/nosnap.pref
+}
+
+#-------------------------------------------------------------------------------
+
+snap_specific_packages_to_install=(
+    snap
+)
+
+install_snap_specific_packages() {
+    aptget_install "${snap_specific_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    enable_snap_support
+    aptget_update
+    install_snap_specific_packages
+}
+
+#-------------------------------------------------------------------------------
+
+main

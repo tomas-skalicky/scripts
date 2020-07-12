@@ -107,7 +107,6 @@ configure_bash_prompt() {
 main() {
     configure_xserver_repositories
     aptget_update
-    aptget_upgrade
     install_xserver_specific_packages
     configure_default_applications
     source ../shared/roles/google-chrome

@@ -72,7 +72,6 @@ packages_to_install=(
     nmap                        # Port scanner
     python3-pip                 # Python3 package manager
     python3-tk                  # A module for writing portable GUI applications with Python 3.x using Tk.
-    realpath                    # Utility which converts each pathname argument to an absolute pathname which has no components that are symbolic links or the special . or .. direstory entries.
     rsync
     shellcheck                  # A shell script static analysis tool
     sudo

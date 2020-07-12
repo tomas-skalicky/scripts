@@ -16,8 +16,36 @@ install_openjdk_packages() {
 
 #-------------------------------------------------------------------------------
 
+configure_java_home() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r installed_major_version=$(dpkg --list 'openjdk*' \
+            | grep '^ii' \
+            | head -n 1 \
+            | tr --squeeze ' ' \
+            | cut --delimiter=' ' --fields=3 \
+            | cut --delimiter='.' --fields=1)
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/profile.d/java_environment.sh
+    set +e
+    read -r -d '' file_contents <<- EOF
+	export JAVA_HOME=/usr/lib/jvm/java-$installed_major_version-openjdk-amd64
+	java_bin=\$JAVA_HOME/bin
+	if [ "\$PATH" != *"\$java_bin"* ]; then
+	    export PATH=\$java_bin:\$PATH
+	fi
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
 main() {
     install_openjdk_packages
+    configure_java_home
 }
 
 #-------------------------------------------------------------------------------

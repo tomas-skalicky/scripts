@@ -4,7 +4,7 @@
 
 #-------------------------------------------------------------------------------
 
-pass_specific_packages_to_install=(
+pass_specific_debian_packages_to_install=(
     pass     # Tool itself
     qtpass   # GUI for linux. See https://qtpass.org/
     xclip    # For copying of password undisclosed to clipboard
@@ -12,17 +12,16 @@ pass_specific_packages_to_install=(
 
 #-------------------------------------------------------------------------------
 
-install_pass_specific_packages() {
-    aptget_install "${pass_specific_packages_to_install[@]}"
+install_pass_specific_debian_packages() {
+    aptget_install "${pass_specific_debian_packages_to_install[@]}"
 }
 
 #-------------------------------------------------------------------------------
 
 main() {
-    install_pass_specific_packages
+    install_pass_specific_debian_packages
 }
 
 #-------------------------------------------------------------------------------
 
 main
-

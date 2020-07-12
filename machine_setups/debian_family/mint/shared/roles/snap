@@ -12,12 +12,14 @@ enable_snap_support() {
 
 #-------------------------------------------------------------------------------
 
-snap_specific_packages_to_install=(
+snap_specific_debian_packages_to_install=(
     snap
 )
 
-install_snap_specific_packages() {
-    aptget_install "${snap_specific_packages_to_install[@]}"
+#-------------------------------------------------------------------------------
+
+install_snap_specific_debian_packages() {
+    aptget_install "${snap_specific_debian_packages_to_install[@]}"
 }
 
 #-------------------------------------------------------------------------------
@@ -25,7 +27,7 @@ install_snap_specific_packages() {
 main() {
     enable_snap_support
     aptget_update
-    install_snap_specific_packages
+    install_snap_specific_debian_packages
 }
 
 #-------------------------------------------------------------------------------

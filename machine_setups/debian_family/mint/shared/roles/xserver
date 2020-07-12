@@ -13,19 +13,19 @@ configure_xserver_repositories() {
 
 #-------------------------------------------------------------------------------
 
-okular_specific_packages_to_install=(
+okular_specific_debian_packages_to_install=(
     okular
 )
 
-xserver_specific_packages_to_install=(
-    "${okular_specific_packages_to_install[@]}"
+xserver_specific_debian_packages_to_install=(
+    "${okular_specific_debian_packages_to_install[@]}"
     oxygen-icon-theme
 )
 
 #-------------------------------------------------------------------------------
 
-install_xserver_specific_packages() {
-    aptget_install "${xserver_specific_packages_to_install[@]}"
+install_xserver_specific_debian_packages() {
+    aptget_install "${xserver_specific_debian_packages_to_install[@]}"
 }
 
 #-------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ configure_bash_prompt() {
 main() {
     configure_xserver_repositories
     aptget_update
-    install_xserver_specific_packages
+    install_xserver_specific_debian_packages
     configure_default_applications
     source ../shared/roles/google-chrome
     install_microsoft_fonts

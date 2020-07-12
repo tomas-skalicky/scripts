@@ -45,7 +45,7 @@ configure_java_home() {
 
 main() {
     install_openjdk_packages
-    configure_java_home
+    #FIXME temporary commented out due to OracleJDK 8 used on work laptop: configure_java_home
 }
 
 #-------------------------------------------------------------------------------

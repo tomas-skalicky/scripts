@@ -65,8 +65,8 @@ main() {
     source ../shared/roles/logstash_forwarder "$logstash_forwarder_cert_file_path"
     source ../shared/roles/ledger_wallet
     source roles/private_laptop
-    # Moved at the end of the list of roles because an upgrade of Python
-    # packages takes time.
+    # Upgrade of Python packages is at the end of the set-up script
+    # because it takes a fair amount of time and it is not critical.
     source ../shared/roles/python
     source ../shared/roles/search
     print_info 'Setup has been successful'

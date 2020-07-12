@@ -344,7 +344,7 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 	    cd - >/dev/null
 	}
 	${function_prefices[open]}motivational_video() {
-	    gnome-open "$user_home"/Documents/video/others/'Best Motivational Video - Speeches Compilation 1 Hour Long (HD).mp4'
+	    xdg-open "$user_home"/Documents/video/others/'Best Motivational Video - Speeches Compilation 1 Hour Long (HD).mp4'
 	}
 	EOF
     set -e

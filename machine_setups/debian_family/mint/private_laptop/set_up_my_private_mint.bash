@@ -43,7 +43,6 @@ main() {
     source ../shared/roles/jvm_software_development_kit groovy
     source ../shared/roles/jvm_software_development_kit maven
     source ../shared/roles/gradle "${user_home:?}"/Documents/development/gradle
-    source ../shared/roles/python
     source ../shared/roles/node
     source ../shared/roles/eclipse
     source ../shared/roles/intellij_idea IC
@@ -65,6 +64,9 @@ main() {
     source ../shared/roles/logstash_forwarder "$logstash_forwarder_cert_file_path"
     source ../shared/roles/ledger_wallet
     source roles/private_laptop
+    # Moved at the end of the list of roles because an upgrade of Python
+    # packages takes time.
+    source ../shared/roles/python
     source ../shared/roles/search
     print_info 'Setup has been successful'
 }

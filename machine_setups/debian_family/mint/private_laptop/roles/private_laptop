@@ -340,7 +340,7 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 	back_up_on_external_disk() {
 	    # shellcheck disable=SC2140
 	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[scripts]}/adhoc_backups"
-	    sudo ./back_up_to_extern_disk.bash "${username:?}" tomas_backup "\${1:?}"
+	    sudo ./back_up_to_extern_disk.bash "${username:?}" tomas_backup "\$1"
 	    cd - >/dev/null
 	}
 	set_up_my_mint() {

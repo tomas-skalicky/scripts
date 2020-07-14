@@ -8,17 +8,23 @@ set -e
 
 set +e
 read -r -d '' usage <<- EOF
-	usage: ./$(basename "$0") <backup_parent_dirname, e.g. 'VERBATIM HD', tomas_verbatim_hdd-backups or 'My previous HDD'>
+	usage: ./$(basename "$0") <username> <backup_dir_name> <backup_parent_dirname>
+
+	    username: tom, tomas,...
+	    backup_dir_name: tomas_backup, tomas_check24_backup,...
+	    backup_parent_dirname: 'VERBATIM HD', tomas_verbatim_hdd-backups, 'My previous HDD',...
 	EOF
 set -e
 
 #-------------------------------------------------------------------------------
 
-backup_parent_dirname=$1
+username=$1
+backup_dir_name=$2
+backup_parent_dirname=$3
 
 #-------------------------------------------------------------------------------
 
-if [[ -z $backup_parent_dirname ]]; then
+if [[ -z $username ]] || [[ -z $backup_dir_name ]] || [[ -z $backup_parent_dirname ]]; then
     printf '%s\n' "$usage" >&2
     exit 1
 fi
@@ -36,7 +42,6 @@ assert_root_rights_presence
 
 #-------------------------------------------------------------------------------
 
-username=tom
 backup_parent_dirpath=/media/$username/$backup_parent_dirname
 if [[ ! -d $backup_parent_dirpath ]]; then
     printf "ERROR: Directory %s does not exist\n" "$backup_parent_dirpath" >&2
@@ -45,7 +50,6 @@ fi
 
 #-------------------------------------------------------------------------------
 
-backup_dir_name=tomas_backup
 backup_dir_path=$backup_parent_dirpath/$backup_dir_name
 mkdir --parents "$backup_dir_path"
 
@@ -68,9 +72,6 @@ set +e
 # /home/tom/.gradle/gradle/dists , /home/tom/.sdkman/archives ,
 # /home/tom/.sdkman/candidates contain only
 # downloaded or unpacked downloaded files.
-#
-# /usr excluded since the backup process froze multiple times within
-# this folder.
 rsync --archive \
       --delete-after \
       --exclude backup/ \

@@ -56,7 +56,6 @@ packages_to_install=(
     git                         # Git (any version) must already be installed here because of syntastic
     glances                     # Curses-based monitoring tool
     gnupg2                      # GnuPG 2.x is the new modularized version of GnuPG supporting OpenPGP
-    heirloom-mailx              # Send and receive email. It is possible to use remove SMTP server
     htop
     iftop                       # Display bandwidth usage on an interface
     inetutils-traceroute        # The package contains traceroute: displays the route taken by IP packets on their way to another host or another network.
@@ -73,6 +72,7 @@ packages_to_install=(
     python3-pip                 # Python3 package manager
     python3-tk                  # A module for writing portable GUI applications with Python 3.x using Tk.
     rsync
+    s-nail                      # Send and receive email. It is possible to use a remote SMTP server
     shellcheck                  # A shell script static analysis tool
     sudo
     swaks                       # Swiss Army Knife SMTP, the all-purpose SMTP transaction tester. Example: swaks --to xyz@gmail.com --server smtp.google.com

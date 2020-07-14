@@ -24,8 +24,19 @@ backup_parent_dirname=$3
 
 #-------------------------------------------------------------------------------
 
-if [[ -z $username ]] || [[ -z $backup_dir_name ]] || [[ -z $backup_parent_dirname ]]; then
+if [[ -z $username ]]; then
     printf '%s\n' "$usage" >&2
+    printf '%s\n' 'Missing a username argument' >&2
+    exit 1
+fi
+if [[ -z $backup_dir_name ]]; then
+    printf '%s\n' "$usage" >&2
+    printf '%s\n' 'Missing a backup_dir_name argument' >&2
+    exit 1
+fi
+if [[ -z $backup_parent_dirname ]]; then
+    printf '%s\n' "$usage" >&2
+    printf '%s\n' 'Missing a backup_parent_dirname argument' >&2
     exit 1
 fi
 

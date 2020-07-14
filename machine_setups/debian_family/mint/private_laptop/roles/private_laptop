@@ -337,6 +337,12 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 	    # shellcheck disable=SC2140
 	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[scripts]}"
 	}
+	back_up_on_external_disk() {
+	    # shellcheck disable=SC2140
+	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[scripts]}/adhoc_backups"
+	    sudo ./back_up_to_extern_disk.bash "${username:?}" tomas_backup "\${1:?}"
+	    cd - >/dev/null
+	}
 	set_up_my_mint() {
 	    # shellcheck disable=SC2140
 	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[mint_setup_scripts]}/private_laptop"

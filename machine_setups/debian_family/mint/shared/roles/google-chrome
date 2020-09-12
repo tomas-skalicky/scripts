@@ -9,7 +9,7 @@ configure_chrome_apt_sources() {
     local file_contents
     set +e
     read -r -d '' file_contents <<- 'EOF'
-	deb   http://dl.google.com/linux/chrome/deb/   stable   main
+	deb   [arch=amd64]   http://dl.google.com/linux/chrome/deb/   stable   main
 	EOF
     set -e
     set_file_contents \

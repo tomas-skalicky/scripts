@@ -13,7 +13,7 @@ configure_virtualbox_apt_sources() {
     local file_contents
     set +e
     read -r -d '' file_contents <<- EOF
-	deb   http://download.virtualbox.org/virtualbox/debian   ${current_ubuntu_distribution_name:?}   contrib
+	deb   [arch=amd64]   http://download.virtualbox.org/virtualbox/debian   ${current_ubuntu_distribution_name:?}   contrib
 	EOF
     set -e
     set_file_contents \

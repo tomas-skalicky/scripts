@@ -20,7 +20,9 @@ configure_virtualbox_apt_sources() {
                       /etc/apt/sources.list.d/virtualbox.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    wget --quiet https://www.virtualbox.org/download/oracle_vbox.asc --output-document=- \
+    wget --quiet \
+         --output-document=- \
+         https://www.virtualbox.org/download/oracle_vbox.asc \
         | apt-key add -
     aptkey_adv A2F683C52980AECF
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -22,7 +22,9 @@ configure_logstash_forwarder_apt_sources() {
                       /etc/apt/sources.list.d/elastic_7.x.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    wget --quiet http://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
+    wget --quiet \
+         --output-document=- \
+         http://artifacts.elastic.co/GPG-KEY-elasticsearch \
         | apt-key add -
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }

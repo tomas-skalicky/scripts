@@ -19,7 +19,9 @@ configure_elasticsearch_apt_sources() {
                       /etc/apt/sources.list.d/elastic_7.x.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    wget --quiet https://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
+    wget --quiet \
+         --output-document=- \
+         https://artifacts.elastic.co/GPG-KEY-elasticsearch \
         | apt-key add -
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }

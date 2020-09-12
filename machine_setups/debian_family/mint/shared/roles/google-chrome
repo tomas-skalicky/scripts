@@ -16,12 +16,10 @@ configure_chrome_apt_sources() {
                       /etc/apt/sources.list.d/google-chrome.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    wget \
-         --quiet \
+    wget --quiet \
          --output-document=- \
          https://dl-ssl.google.com/linux/linux_signing_key.pub \
-    | \
-    apt-key add -
+        | apt-key add -
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 

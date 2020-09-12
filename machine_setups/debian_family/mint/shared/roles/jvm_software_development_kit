@@ -27,6 +27,8 @@ install_or_update_development_kit() {
                                             sdk current '$development_kit_to_install_or_update';
                                             if sdk current '$development_kit_to_install_or_update' | grep 'Not using any version of $development_kit_to_install_or_update' >/dev/null; then
                                                 sdk install '$development_kit_to_install_or_update';
+                                            else
+                                                sdk upgrade '$development_kit_to_install_or_update';
                                             fi"
 }
 

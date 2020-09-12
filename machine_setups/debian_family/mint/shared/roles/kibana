@@ -19,8 +19,7 @@ configure_kibana_apt_sources() {
                       /etc/apt/sources.list.d/elastic_7.x.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    wget --quiet https://artifacts.elastic.co/GPG-KEY-elasticsearch --output-document=- \
-        | apt-key add -
+    aptkey_add https://artifacts.elastic.co/GPG-KEY-elasticsearch
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 

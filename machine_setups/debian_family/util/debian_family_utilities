@@ -8,7 +8,7 @@ aptkey_adv() {
     local -r key=${1:?}
     local -r keyserver=${2:-keyserver.ubuntu.com}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    printf 'Downloading key %s from keyserver %s into the trusted set of keys...' \
+    printf 'Downloading APT key %s from keyserver %s into the trusted set of keys...' \
            "$key" \
            "$keyserver"
     if apt-key adv \
@@ -21,6 +21,19 @@ aptkey_adv() {
     fi
     printf ' %s.\n' "$outcome"
     printf '\n'
+}
+
+#-------------------------------------------------------------------------------
+
+aptkey_add() {
+    local -r url=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf 'Downloading APT key from URL %s and adding it into the trusted set of keys...' \
+           "$url"
+    wget --quiet \
+         --output-document=- \
+         "$url" \
+        | apt-key add -
 }
 
 #-------------------------------------------------------------------------------

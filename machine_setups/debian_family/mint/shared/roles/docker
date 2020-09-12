@@ -4,20 +4,34 @@
 
 #-------------------------------------------------------------------------------
 
+docker_prerequisite_packages_to_install=(
+    apt-transport-https
+    ca-certificates
+    software-properties-common
+)
+
+install_docker_prerequisite_packages() {
+    aptget_install "${docker_prerequisite_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
 configure_docker_apt_sources() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local file_contents
     set +e
     read -r -d '' file_contents <<- EOF
-	deb   https://apt.dockerproject.org/repo   ubuntu-${current_ubuntu_distribution_name:?}   main
+	deb   [arch=amd64]   https://download.docker.com/linux/ubuntu   ${current_ubuntu_distribution_name:?}   stable
 	EOF
     set -e
     set_file_contents \
                       /etc/apt/sources.list.d/docker.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    aptkey_adv 58118E89F3A912897C070ADBF76221572C52609D \
-               p80.pool.sks-keyservers.net
+    wget --quiet \
+         --output-document=- \
+         https://download.docker.com/linux/ubuntu/gpg \
+        | apt-key add -
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 
@@ -25,7 +39,7 @@ configure_docker_apt_sources() {
 
 install_docker() {
     aptget_update
-    aptget_install docker-engine
+    aptget_install docker-ce
 }
 
 #-------------------------------------------------------------------------------
@@ -37,6 +51,7 @@ configure_docker_for_non_root_user() {
 #-------------------------------------------------------------------------------
 
 main() {
+    install_docker_prerequisite_packages
     configure_docker_apt_sources
     install_docker
     configure_docker_for_non_root_user

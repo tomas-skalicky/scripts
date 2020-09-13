@@ -32,6 +32,18 @@ install_or_update_development_kit() {
                                             fi"
 }
 
+uninstall_non_current_versions() {
+    local -r development_kit=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # `bash -l' to get `sdk' command.
+    sudo --user="${username:?}" bash -l -c "while read version_to_be_removed; do
+                                                sdk uninstall '$development_kit' \"\$version_to_be_removed\";
+                                            done < <(sdk list '$development_kit' \
+                                                | sed --regexp-extended 's/[ ]*([\>\*\ ]*[0-9a-zA-Z\.\_\-]+)[ ]*/\1\n/g' \
+                                                | grep '^* [[:digit:]]' \
+                                                | sed 's/^\* //')"
+}
+
 #-------------------------------------------------------------------------------
 
 main() {
@@ -39,6 +51,7 @@ main() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     install_or_update_sdkman
     install_or_update_development_kit "$development_kit_to_install_or_update"
+    uninstall_non_current_versions "$development_kit_to_install_or_update"
 }
 
 #-------------------------------------------------------------------------------

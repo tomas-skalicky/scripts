@@ -6,7 +6,7 @@
 
 install_rambox() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    local -r version=0.7.5
+    local -r version=0.7.7
     local -r app_name=rambox
     local -r architecture=amd64
     local -r deb_package_file_name=Rambox-$version-linux-$architecture.deb

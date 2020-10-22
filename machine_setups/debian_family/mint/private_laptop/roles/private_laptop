@@ -289,6 +289,7 @@ create_or_update_auxiliary_tmux_functions_for_interactive_shells() {
 
 create_or_update_auxiliary_functions_for_interactive_shells() {
     local -r dropbox_home_dir=${1:?}
+    local -r python_projects_home_dir=${2:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # shellcheck disable=SC2154
     check_if_array_variable_set_and_not_empty dropbox_dirpaths "${dropbox_dirpaths[@]}"
@@ -328,7 +329,7 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 	    cd "${dirpaths[java_source_files]}"/spring
 	}
 	${function_prefices[cd]}python_source_files() {
-	    cd "${dirpaths[development]}"/python/source_files
+	    cd "$python_projects_home_dir"
 	}
 	${function_prefices[cd]}bash_source_files() {
 	    cd "${dirpaths[development]}"/bash/source_files
@@ -368,6 +369,18 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 
 #-------------------------------------------------------------------------------
 
+clone_git_repos_and_upgrade_virtual_environments() {
+    local -r python_projects_home_dir=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r interview_puzzles_clone_home=$python_projects_home_dir/interview_puzzles
+    git_repo_clone_or_pull git@github.com:tomas-skalicky/interview_puzzles.git "$interview_puzzles_clone_home"
+    # NOTE: Upgraded in a sub-shell to not modify the current $PATH.
+    (upgrade_python_virtual_environments "$interview_puzzles_clone_home"/venv)
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
 configure_pass() {
     local block_contents
     set +e
@@ -397,7 +410,9 @@ main() {
     install_multimedia_software
     set_up_backup_process
     local -r dropbox_home_dir=$user_home/Documents/Dropbox
-    create_or_update_auxiliary_functions_for_interactive_shells "$dropbox_home_dir"
+    local -r python_projects_home_dir=${user_home:?}/Documents/development/python/source_files
+    create_or_update_auxiliary_functions_for_interactive_shells "$dropbox_home_dir" "$python_projects_home_dir"
+    clone_git_repos_and_upgrade_virtual_environments "$python_projects_home_dir"
     configure_pass
 }
 

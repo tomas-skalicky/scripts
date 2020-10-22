@@ -32,6 +32,8 @@ main() {
     source ../shared/constants/common_constants
     source ../shared/constants/dropbox_constants
     source ../../../../bash/util/utilities
+    source ../../../../python/util/utilities
+    source ../../../util/python_linux_utilities
     source ../../../util/xserver_utilities
     source ../../util/debian_family_utilities
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,9 +58,6 @@ main() {
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
     source roles/private_laptop
-    # Upgrade of Python packages is at the end of the set-up script
-    # because it takes a fair amount of time and it is not critical.
-    source ../shared/roles/python
     source ../shared/roles/search
     print_info 'Setup has been successful'
 }

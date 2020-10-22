@@ -8,21 +8,11 @@ upgrade_python_packages() {
     print_info 'Python packages are being updated:'
     # "Exit immediately" mode turned off due to some Python packages failing
     # during their upgrade
-    set +e
-    pip3 list --outdated --format=freeze \
+    while read package_name; do
+        set +e
+        pip3 install --upgrade "$package_name"
+        set -e
+    done < <(pip3 list --outdated --format=freeze 2>/dev/null \
         | grep --invert-match '^\-e' \
-        | cut --delimiter='=' --fields=1 \
-        | xargs --max-args=1 pip3 install --upgrade
-    set -e
+        | cut --delimiter='=' --fields=1)
 }
-
-#-------------------------------------------------------------------------------
-
-main() {
-    upgrade_python_packages
-}
-
-#-------------------------------------------------------------------------------
-
-main
-

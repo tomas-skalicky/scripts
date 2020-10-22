@@ -6,13 +6,16 @@
 
 upgrade_python_packages() {
     print_info 'Python packages are being updated:'
-    # "Exit immediately" mode turned off due to some Python packages failing
-    # during their upgrade
-    while read package_name; do
+    upgraded_package_count=0
+    while read -r package_name; do
+        ((++upgraded_package_count))
+        # "Exit immediately" mode turned off due to some Python packages failing
+        # during their upgrade
         set +e
         pip3 install --upgrade "$package_name"
         set -e
     done < <(pip3 list --outdated --format=freeze 2>/dev/null \
         | grep --invert-match '^\-e' \
         | cut --delimiter='=' --fields=1)
+    print_info "Number of upgraded python packages: $upgraded_package_count"
 }

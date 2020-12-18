@@ -83,6 +83,7 @@ set +e
 # /home/tom/.gradle/gradle/dists , /home/tom/.sdkman/archives ,
 # /home/tom/.sdkman/candidates contain only
 # downloaded or unpacked downloaded files.
+hanka_username=hanka
 rsync --archive \
       --delete-after \
       --exclude backup/ \
@@ -91,6 +92,8 @@ rsync --archive \
       --exclude home/"$username"/.cache/ \
       --exclude home/"$username"/.config/google-chrome/Default/'Service Worker'/CacheStorage/ \
       --exclude home/"$username"/.config/google-chrome/Default/'Service Worker'/ScriptCache/ \
+      --exclude home/"$username"/.config/Rambox/Partitions/rambox/Cache/ \
+      --exclude home/"$username"/.config/skypeforlinux/Cache/ \
       --exclude home/"$username"/.gradle/caches/ \
       --exclude home/"$username"/.gradle/gradle/dists/ \
       --exclude home/"$username"/.gradle/wrapper/dists/ \
@@ -98,6 +101,11 @@ rsync --archive \
       --exclude home/"$username"/.sdkman/archives/ \
       --exclude home/"$username"/.sdkman/candidates/groovy/ \
       --exclude home/"$username"/.tldr/cache/ \
+      --exclude home/"$hanka_username"/.cache/ \
+      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/CacheStorage/ \
+      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/ScriptCache/ \
+      --exclude home/"$hanka_username"/.config/Rambox/Partitions/rambox/Cache/ \
+      --exclude home/"$hanka_username"/.config/skypeforlinux/Cache/ \
       --exclude lost\+found/ \
       --exclude media/ \
       --exclude mnt/ \

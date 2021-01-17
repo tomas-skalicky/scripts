@@ -42,6 +42,7 @@ main() {
     source ../shared/roles/secured_functions
     source ../shared/roles/base
     source ../shared/roles/snap
+    source ../shared/roles/openjdk
     source ../shared/roles/jvm_software_development_kit java 15.0.1.hs-adpt
     source ../shared/roles/jvm_software_development_kit groovy
     source ../shared/roles/jvm_software_development_kit maven

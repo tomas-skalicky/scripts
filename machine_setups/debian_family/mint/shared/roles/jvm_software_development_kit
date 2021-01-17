@@ -5,6 +5,7 @@
 #-------------------------------------------------------------------------------
 
 development_kit_to_install_or_update=${1:?}
+development_kit_identifier_to_install_or_update=${2:-}
 
 #-------------------------------------------------------------------------------
 
@@ -18,6 +19,7 @@ install_or_update_sdkman() {
 
 install_or_update_development_kit() {
     local -r development_kit_to_install_or_update=${1:?}
+    local -r development_kit_identifier_to_install_or_update=${2:-}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # `bash -l' to get `sdk' command.
     sudo --user="${username:?}" bash -l -c "# The first execution of
@@ -27,6 +29,8 @@ install_or_update_development_kit() {
                                             sdk current '$development_kit_to_install_or_update';
                                             if sdk current '$development_kit_to_install_or_update' | grep 'Not using any version of $development_kit_to_install_or_update' >/dev/null; then
                                                 sdk install '$development_kit_to_install_or_update';
+                                            elif [[ -n '$development_kit_identifier_to_install_or_update' ]]; then
+                                                echo 'Execution of sdk upgrade has been skipped since a SDK identifier has been provided. Reason: in the case of AdoptOpenJDK the SDK would suggest downgrade to an LTS version.'
                                             else
                                                 sdk upgrade '$development_kit_to_install_or_update';
                                             fi"
@@ -48,13 +52,14 @@ uninstall_non_current_versions() {
 
 main() {
     local -r development_kit_to_install_or_update=${1:?}
+    local -r development_kit_identifier_to_install_or_update=${2:-}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     install_or_update_sdkman
-    install_or_update_development_kit "$development_kit_to_install_or_update"
+    install_or_update_development_kit "$development_kit_to_install_or_update" "$development_kit_identifier_to_install_or_update"
     uninstall_non_current_versions "$development_kit_to_install_or_update"
 }
 
 #-------------------------------------------------------------------------------
 
-main "$development_kit_to_install_or_update"
+main "$development_kit_to_install_or_update" "$development_kit_identifier_to_install_or_update"
 

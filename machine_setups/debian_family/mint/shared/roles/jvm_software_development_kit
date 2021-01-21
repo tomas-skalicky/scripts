@@ -28,9 +28,15 @@ install_or_update_development_kit() {
                                             # the version on the command line.
                                             sdk current '$development_kit_to_install_or_update';
                                             if sdk current '$development_kit_to_install_or_update' | grep 'Not using any version of $development_kit_to_install_or_update' >/dev/null; then
-                                                sdk install '$development_kit_to_install_or_update';
+                                                # Since the 2nd argument is
+                                                # not quoted, when its value is
+                                                # empty, the sdk command is
+                                                # executed only with one
+                                                # argument (not two arguments
+                                                # where the 2nd would be empty).
+                                                sdk install '$development_kit_to_install_or_update' $development_kit_identifier_to_install_or_update;
                                             elif [[ -n '$development_kit_identifier_to_install_or_update' ]]; then
-                                                echo 'Execution of sdk upgrade has been skipped since a SDK identifier has been provided. Reason: in the case of AdoptOpenJDK the SDK would suggest downgrade to an LTS version.'
+                                                echo 'Execution of sdk upgrade has been skipped since a SDK identifier has been provided. Reason: in the case of AdoptOpenJDK the SDK would suggest downgrade to an LTS version.';
                                             else
                                                 sdk upgrade '$development_kit_to_install_or_update';
                                             fi"

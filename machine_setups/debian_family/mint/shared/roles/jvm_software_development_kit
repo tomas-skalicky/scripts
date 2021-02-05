@@ -56,6 +56,34 @@ uninstall_non_current_versions() {
 
 #-------------------------------------------------------------------------------
 
+add_java_home_to_path() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/profile.d/java_environment.sh
+    set +e
+    read -r -d '' file_contents <<- EOF
+	java_bin=\$JAVA_HOME/bin
+	if [ "\$PATH" != *"\$java_bin"* ]; then
+	    export PATH=\$java_bin:\$PATH
+	fi
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+configure_profile() {
+    local -r development_kit_to_install_or_update=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    if [[ $development_kit_to_install_or_update = java ]]; then
+        add_java_home_to_path
+    fi
+}
+
+
+#-------------------------------------------------------------------------------
+
 main() {
     local -r development_kit_to_install_or_update=${1:?}
     local -r development_kit_identifier_to_install_or_update=${2:-}
@@ -63,9 +91,10 @@ main() {
     install_or_update_sdkman
     install_or_update_development_kit "$development_kit_to_install_or_update" "$development_kit_identifier_to_install_or_update"
     uninstall_non_current_versions "$development_kit_to_install_or_update"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    configure_profile "$development_kit_to_install_or_update"
 }
 
 #-------------------------------------------------------------------------------
 
 main "$development_kit_to_install_or_update" "$development_kit_identifier_to_install_or_update"
-

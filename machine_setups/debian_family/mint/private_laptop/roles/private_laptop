@@ -188,6 +188,61 @@ set_up_backup_process() {
 
 #-------------------------------------------------------------------------------
 
+configure_crypto_bot_anacron() {
+    local -r anacrontab_file_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local block_contents
+    set +e
+    read -r -d '' block_contents <<- EOF
+	3	5	crypto-bot	cd /home/tom/Documents/development/java/source_files/crypto-bot-for-run/ && ./production-gradle-command-used-in-anacron.bash 2>&1 | /usr/bin/logger -i
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Crypto bot'
+    local -r end_comment='# <END> Crypto bot'
+    set_or_replace_block_contents_in_file \
+                                         "$anacrontab_file_path" \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+    chown_to_user "$anacrontab_file_path"
+}
+
+configure_start_of_user_specific_anacron_on_user_login() {
+    local -r anacrontab_file_path=${1:?}
+    local -r anacron_spool_directory_path=${2:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local block_contents
+    set +e
+    read -r -d '' block_contents <<- EOF
+	anacron -t "$anacrontab_file_path" -S "$anacron_spool_directory_path"
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Start user-specific Anacron'
+    local -r end_comment='# <END> Start user-specific Anacron'
+    set_or_replace_block_contents_in_file \
+                                         "${user_home:?}"/.bashrc \
+                                         "$block_contents" \
+                                         "$begin_comment" \
+                                         "$end_comment"
+}
+
+set_up_anacron_for_crypto_bot() {
+    local -r anacrontab_directory_path=${user_home:?}/.anacron/etc/
+    local -r anacrontab_file_path=${anacrontab_directory_path:?}anacrontab
+    # The folder where dates of executions of Anacron jobs are stored.
+    local -r anacron_spool_directory_path=${user_home:?}/.anacron/var/spool/anacron/
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sudo --user="${username:?}" mkdir --parents \
+                                                "$anacrontab_directory_path" \
+                                                "$anacron_spool_directory_path"
+    configure_crypto_bot_anacron "$anacrontab_file_path"
+    configure_start_of_user_specific_anacron_on_user_login \
+                                                           "$anacrontab_file_path" \
+                                                           "$anacron_spool_directory_path"
+}
+
+#-------------------------------------------------------------------------------
+
 create_or_update_auxiliary_tmux_functions_for_interactive_shells() {
     create_or_update_common_auxiliary_tmux_functions_for_interactive_shells
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -412,6 +467,7 @@ main() {
     configure_gnupg2
     install_multimedia_software
     set_up_backup_process
+    set_up_anacron_for_crypto_bot
     local -r dropbox_home_dir=$user_home/Documents/Dropbox
     local -r python_projects_home_dir=${user_home:?}/Documents/development/python/source_files
     local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files

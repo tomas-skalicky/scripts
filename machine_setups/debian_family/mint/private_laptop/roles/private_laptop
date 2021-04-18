@@ -190,11 +190,12 @@ set_up_backup_process() {
 
 configure_crypto_bot_anacron() {
     local -r anacrontab_file_path=${1:?}
+    local -r crypto_bot_for_anacron_production_run_home_path=${2:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local block_contents
     set +e
     read -r -d '' block_contents <<- EOF
-	3	5	crypto-bot	cd /home/tom/Documents/development/java/source_files/crypto-bot-for-run/ && ./production-gradle-command-used-in-anacron.bash 2>&1 | /usr/bin/logger -i
+	@daily	5	crypto-bot	cd "$crypto_bot_for_anacron_production_run_home_path" && ./production-command.bash 2>&1 | /usr/bin/logger -i
 	EOF
     set -e
     local -r begin_comment='# <BEGIN> Crypto bot'
@@ -227,6 +228,8 @@ configure_start_of_user_specific_anacron_on_user_login() {
 }
 
 set_up_anacron_for_crypto_bot() {
+    local -r crypto_bot_for_anacron_production_run_home_path=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r anacrontab_directory_path=${user_home:?}/.anacron/etc/
     local -r anacrontab_file_path=${anacrontab_directory_path:?}anacrontab
     # The folder where dates of executions of Anacron jobs are stored.
@@ -235,7 +238,9 @@ set_up_anacron_for_crypto_bot() {
     sudo --user="${username:?}" mkdir --parents \
                                                 "$anacrontab_directory_path" \
                                                 "$anacron_spool_directory_path"
-    configure_crypto_bot_anacron "$anacrontab_file_path"
+    configure_crypto_bot_anacron \
+                                 "$anacrontab_file_path" \
+                                 "$crypto_bot_for_anacron_production_run_home_path"
     configure_start_of_user_specific_anacron_on_user_login \
                                                            "$anacrontab_file_path" \
                                                            "$anacron_spool_directory_path"
@@ -426,6 +431,7 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 clone_git_repos_and_upgrade_virtual_environments() {
     local -r python_projects_home_dir=${1:?}
     local -r java_projects_home_dir=${2:?}
+    local -r crypto_bot_for_anacron_production_run_home_path=${3:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r interview_puzzles_clone_home=$python_projects_home_dir/interview_puzzles
     git_repo_clone_or_pull git@github.com:tomas-skalicky/interview_puzzles.git "$interview_puzzles_clone_home"
@@ -434,7 +440,8 @@ clone_git_repos_and_upgrade_virtual_environments() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r crypto_bot_remote=git@github.com:tomas-skalicky/crypto-bot.git
     git_repo_clone_or_pull "$crypto_bot_remote" "$java_projects_home_dir/crypto-bot"
-    git_repo_clone_or_pull "$crypto_bot_remote" "$java_projects_home_dir/crypto-bot-for-run"
+    git_repo_clone_or_pull "$crypto_bot_remote" "$crypto_bot_for_anacron_production_run_home_path"
+    git_repo_clone_or_pull "$crypto_bot_remote" "$java_projects_home_dir/crypto-bot-for-production-run-by-crontab"
 }
 
 #-------------------------------------------------------------------------------
@@ -467,17 +474,19 @@ main() {
     configure_gnupg2
     install_multimedia_software
     set_up_backup_process
-    set_up_anacron_for_crypto_bot
+    local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files
+    local -r crypto_bot_for_anacron_production_run_home_path=$java_projects_home_dir/crypto-bot-for-production-run-by-anacron/
+    set_up_anacron_for_crypto_bot "$crypto_bot_for_anacron_production_run_home_path"
     local -r dropbox_home_dir=$user_home/Documents/Dropbox
     local -r python_projects_home_dir=${user_home:?}/Documents/development/python/source_files
-    local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files
     create_or_update_auxiliary_functions_for_interactive_shells \
                                                                 "$dropbox_home_dir" \
                                                                 "$python_projects_home_dir" \
                                                                 "$java_projects_home_dir"
     clone_git_repos_and_upgrade_virtual_environments \
                                                      "$python_projects_home_dir" \
-                                                     "$java_projects_home_dir"
+                                                     "$java_projects_home_dir" \
+                                                     "$crypto_bot_for_anacron_production_run_home_path"
     configure_pass
 }
 

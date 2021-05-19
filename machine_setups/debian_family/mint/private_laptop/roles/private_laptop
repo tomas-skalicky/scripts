@@ -118,8 +118,8 @@ configure_gpg_agent() {
     # from the user again.
     set +e
     read -r -d '' file_contents <<- EOF
-	default-cache-ttl 90
-	max-cache-ttl 90
+	default-cache-ttl 180
+	max-cache-ttl 180
 	EOF
     set -e
     set_file_contents \

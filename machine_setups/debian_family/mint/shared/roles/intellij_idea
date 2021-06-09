@@ -71,7 +71,7 @@ install_idea() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -A idea
     # shellcheck disable=SC2154
-    idea[product]=idea${license_version}-2021.1.1
+    idea[product]=idea${license_version}-2021.1.2
     # shellcheck disable=SC2154
     idea[installer_filename]=${idea[product]}-no-jbr.tar.gz
     # shellcheck disable=SC2154

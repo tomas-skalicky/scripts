@@ -259,7 +259,7 @@ set_up_crontab_for_crypto_bot() {
     local block_contents
     set +e
     read -r -d '' block_contents <<- EOF
-	11 * * * * cd "${crypto_bot_for_crontab_production_run_home_path:?}" && ./production-command.bash
+	*/15 * * * * cd "${crypto_bot_for_crontab_production_run_home_path:?}" && ./production-command.bash
 	EOF
     set -e
     local -r begin_comment='# <BEGIN> Crypto bot crontab'

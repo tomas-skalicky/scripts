@@ -476,6 +476,9 @@ clone_git_repos_and_upgrade_virtual_environments() {
     git_repo_clone_or_pull "$crypto_bot_remote" "$java_projects_home_dir/crypto-bot"
     git_repo_clone_or_pull "$crypto_bot_remote" "$crypto_bot_for_anacron_production_run_home_path"
     git_repo_clone_or_pull "$crypto_bot_remote" "$crypto_bot_for_crontab_production_run_home_path"
+    git_repo_clone_or_pull /
+                            git@github.com:tomas-skalicky/investments__properties.git
+                           "$user_home"/Documents/documents/investments/properties__immobilien/convenient_code
 }
 
 #-------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ main() {
     source ../shared/roles/secured_functions
     source ../shared/roles/base
     source ../shared/roles/snap
-    source ../shared/roles/jvm_software_development_kit java 16.0.1.hs-adpt
+    source ../shared/roles/jvm_software_development_kit java 17.0.0-tem
     source ../shared/roles/jvm_software_development_kit groovy
     source ../shared/roles/jvm_software_development_kit maven
     source ../shared/roles/gradle "${user_home:?}"/Documents/development/gradle

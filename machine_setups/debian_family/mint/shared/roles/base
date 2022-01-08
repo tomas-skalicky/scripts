@@ -28,7 +28,7 @@ configure_base_apt_sources() {
     # Used ; (semicolor) as a separator
     sed \
         --in-place \
-        's;http://packages.linuxmint.com;http://ftp.fau.de/mint/packages;' \
+        's;http://packages.linuxmint.com;https://ftp.fau.de/mint/packages;' \
         /etc/apt/sources.list.d/official-package-repositories.list
     sed \
         --in-place \

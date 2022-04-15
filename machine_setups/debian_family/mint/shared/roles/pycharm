@@ -27,7 +27,7 @@ update_pycharm_vmoptions() {
     # https://blog.codecentric.de/2011/07/nutzliche-jvm-flags-teil-4/)
     read -r -d '' block_contents <<- EOF
 	-Xmx1g
-	-XX:ReservedCodeCacheSize=256m
+	-XX:ReservedCodeCacheSize=512m
 	-Duser.name=Tomas Skalicky
 	EOF
     set -e

@@ -104,6 +104,26 @@ install_packages() {
 
 #-------------------------------------------------------------------------------
 
+configure_timestamps_in_history() {
+    local block_contents
+    set +e
+    # NOTE: Don't replace EOF with 'EOF'. Otherwise, you would come across
+    # encoding problems.
+    read -r -d '' block_contents <<- EOF
+	export HISTTIMEFORMAT="%F %T "
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Timestamp in history'
+    local -r end_comment='# <END> Timestamp in history'
+    set_or_replace_block_contents_in_file \
+                                          "${user_home:?}"/.bashrc \
+                                          "$block_contents" \
+                                          "$begin_comment" \
+                                          "$end_comment"
+}
+
+#-------------------------------------------------------------------------------
+
 configure_syntastic_vim_plugin() {
     local -r autoload_dir=${user_home:?}/.vim/autoload
     local -r bundle_dir=${user_home:?}/.vim/bundle
@@ -162,6 +182,7 @@ main() {
     configure_base_apt_sources
     install_packages
 
+    configure_timestamps_in_history
     configure_vim
     configure_tmux
 }
@@ -169,4 +190,3 @@ main() {
 #-------------------------------------------------------------------------------
 
 main
-

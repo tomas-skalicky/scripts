@@ -21,8 +21,9 @@ install_or_update_development_kit() {
     local -r development_kit_to_install_or_update=${1:?}
     local -r development_kit_identifier_to_install_or_update=${2:-}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # `bash -l' to get `sdk' command.
-    sudo --user="${username:?}" bash -l -c "# The first execution of
+    # We need a new interactive shell causing sourcing of ~/.bashrc to get
+    # `sdk' command; hence `bash -i'.
+    sudo --user="${username:?}" bash -i -c "# The first execution of
                                             # ``sdk current <development_kit>'
                                             # is to see the name of the kit and
                                             # the version on the command line.
@@ -45,8 +46,9 @@ install_or_update_development_kit() {
 uninstall_non_current_versions() {
     local -r development_kit=${1:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # `bash -l' to get `sdk' command.
-    sudo --user="${username:?}" bash -l -c "while read version_to_be_removed; do
+    # We need a new interactive shell causing sourcing of ~/.bashrc to get
+    # `sdk' command; hence `bash -i'.
+    sudo --user="${username:?}" bash -i -c "while read version_to_be_removed; do
                                                 sdk uninstall '$development_kit' \"\$version_to_be_removed\";
                                             done < <(sdk list '$development_kit' \
                                                 | sed --regexp-extended 's/[ ]*([\>\*\ ]*[0-9a-zA-Z\.\_\-]+)[ ]*/\1\n/g' \

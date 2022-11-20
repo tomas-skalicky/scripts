@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+##
+# Contains a part of https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true
+##
+configure_ledger_live() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r target_folder=${user_home:?}/Documents/documents/investments/cryptocurrencies/wallets/ledger_live/
+    if [[ -z $(find "$target_folder" -type f -name 'ledger-live-*.AppImage') ]]; then
+        print_error "Download the wallet manually from https://www.ledger.com/ledger-live/download and extract the archive to the $target_folder. Then re-run the script."
+        exit 1
+    else
+        print_info 'Ledger Live wallet already present'
+    fi
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    chmod +x "$target_folder"/ledger-live-*.AppImage
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Copied 1 to 1 from https://support.ledger.com/hc/en-us/articles/4404389606417-Download-and-install-Ledger-Live?docs=true
+    wget -q -O - https://raw.githubusercontent.com/LedgerHQ/udev-rules/master/add_udev_rules.sh | sudo bash
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_ledger_live
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

@@ -58,6 +58,7 @@ main() {
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
     source roles/private_laptop
+    source ../shared/roles/ledger_live_wallet
     source ../shared/roles/search
     print_info 'Setup has been successful'
 }

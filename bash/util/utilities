@@ -103,6 +103,19 @@ reload_profile() {
     fi
 }
 
+##
+# Every interactive non-login shell reads .bashrc first. Normally .bashrc is
+# the best place to add aliases and Bash related functions. The Bash shell
+# looks for the .bashrc file in the home directory and executes it
+# in the current shell using source command.
+##
+reload_bashrc() {
+    local -r user_bashrc="${user_home:?}"/.bashrc
+    if [[ -f $user_bashrc ]]; then
+        source "$user_bashrc"
+    fi
+}
+
 #-------------------------------------------------------------------------------
 
 do_file_contents_action() {

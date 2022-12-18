@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+main() {
+    if ! which zoom; then
+        print_info 'Installing Zoom:'
+        print_info '1) Download a package from https://www.zoomgov.com/download'
+        print_info '2) Install the package by executing'
+        # shellcheck disable=SC2016
+        print_info '    `sudo dpkg --install <package_name>`'
+        print_info '   The installation may fail due to missing dependencies.'
+        print_info '   That will be automatically resolved by the rest of the'
+        print_info '   script.'
+        echo 'When you are done with the steps about, hit ENTER'
+        # shellcheck disable=SC2034
+        read -r anything
+        sudo apt --fix-broken install
+    fi
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

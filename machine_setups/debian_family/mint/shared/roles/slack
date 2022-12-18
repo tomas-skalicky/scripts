@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+configure_slack_apt_sources() {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	# If not working, check
+	# https://packagecloud.io/slacktechnologies/slack/install
+
+	deb   [signed-by=/etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg]    https://packagecloud.io/slacktechnologies/slack/debian/    jessie    main
+	EOF
+    set -e
+    set_file_contents \
+                      /etc/apt/sources.list.d/slacktechnologies_slack.list \
+                      "$file_contents"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    aptkey_add https://packagecloud.io/slacktechnologies/slack/gpgkey
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
+install_slack() {
+    aptget_update
+    aptget_install slack-desktop
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_slack_apt_sources
+    install_slack
+}
+
+#-------------------------------------------------------------------------------
+
+main
+

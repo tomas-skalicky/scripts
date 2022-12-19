@@ -28,32 +28,35 @@ install_git_packages() {
 #-------------------------------------------------------------------------------
 
 configure_git() {
-    git config --global user.name "${user_full_name:?}"
-    git config --global user.email "${user_email:?}"
+    sudo --user="${username:?}" bash -c "
+        git config --global user.name '${user_full_name:?}';
+        git config --global user.email '${user_email:?}';
 
-    git config --global color.ui true
-    git config --global core.autocrlf input
-    git config --global core.editor vim
-    git config --global push.default simple
+        git config --global color.ui true;
+        git config --global core.autocrlf input;
+        git config --global core.editor vim;
+        git config --global push.default simple;
 
-    # Aliases
-    git config --global alias.logg 'log --oneline --decorate --graph'
+        # Aliases
+        git config --global alias.logg 'log --oneline --decorate --graph';
 
-    # Enables a reusing of recorded resolution of conflicted merges
-    git config --global rerere.enabled true
+        # Enables a reusing of recorded resolution of conflicted merges;
+        git config --global rerere.enabled true;
 
-    # Configures a difftool.
-    git config --global diff.tool meld
-    # Stops git from asking you for every single file whether you want to
-    # launch Meld or not.
-    git config --global difftool.prompt false
-    # shellcheck disable=SC2016
-    git config --global difftool.meld.cmd 'meld "$LOCAL" "$REMOTE"'
+        # Configures a difftool.
+        git config --global diff.tool meld;
+        # Stops git from asking you for every single file whether you want to
+        # launch Meld or not.
+        git config --global difftool.prompt false;
+        # shellcheck disable=SC2016
+        git config --global difftool.meld.cmd 'meld \"\$LOCAL\" \"\$REMOTE\"';
 
-    # Configures a merge tool.
-    git config --global merge.tool meld
-    # shellcheck disable=SC2016
-    git config --global mergetool.meld.cmd 'meld "$LOCAL" "$MERGED" "$REMOTE" --output "$MERGED"'
+        # Configures a merge tool.
+        git config --global merge.tool meld;
+        # shellcheck disable=SC2016
+        git config --global mergetool.meld.cmd 'meld \"\$LOCAL\" \"\$MERGED\" \"\$REMOTE\" --output \"\$MERGED\"';
+        git config --global --list;
+    "
 }
 
 #-------------------------------------------------------------------------------

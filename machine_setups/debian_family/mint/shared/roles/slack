@@ -19,8 +19,7 @@ configure_slack_apt_sources() {
                       /etc/apt/sources.list.d/slacktechnologies_slack.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #FIXME the key does not work properly. Check operations done in
-    #https://packagecloud.io/slacktechnologies/slack/install
+    #FIXME the key does not work properly when just copied. Check operations done with the key in the script on https://packagecloud.io/slacktechnologies/slack/install
     #wget --quiet --output-document="/etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg" https://packagecloud.io/slacktechnologies/slack/gpgkey
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }

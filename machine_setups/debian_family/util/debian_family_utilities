@@ -27,13 +27,18 @@ aptkey_adv() {
 
 aptkey_add() {
     local -r url=${1:?}
+    local -r target_file_name=${2:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    printf 'Downloading APT key from URL %s and adding it into the trusted set of keys...' \
-           "$url"
+    local -r target_file_path=${keyrings_home:?}/$target_file_name
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf 'Downloading APT key from URL %s and storing it dearmored into %s...' \
+           "$url" \
+           "$target_file_path"
     wget --quiet \
          --output-document=- \
          "$url" \
-        | apt-key add -
+        | gpg2 --dearmor > "$target_file_path"
+    printf '\n\n'
 }
 
 #-------------------------------------------------------------------------------

@@ -31,7 +31,8 @@ configure_docker_apt_sources() {
                       /etc/apt/sources.list.d/docker.list \
                       "$file_contents"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    aptkey_add https://download.docker.com/linux/ubuntu/gpg "$keyring_file_name"
+    # FIXME key not found, hence commented
+    #aptkey_add https://download.docker.com/linux/ubuntu/gpg "$keyring_file_name"
 }
 
 #-------------------------------------------------------------------------------

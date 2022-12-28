@@ -41,6 +41,18 @@ aptkey_add() {
     printf '\n\n'
 }
 
+aptkey_add_old() {
+    local -r url=${1:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    printf 'Downloading APT key from URL %s and adding it into the trusted set of keys...' \
+           "$url"
+    wget --quiet \
+         --output-document=- \
+         "$url" \
+        | apt-key add -
+    printf '\n'
+}
+
 #-------------------------------------------------------------------------------
 
 aptget_update() {

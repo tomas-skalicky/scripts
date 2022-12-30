@@ -18,7 +18,7 @@ install_node_specific_debian_packages() {
 #-------------------------------------------------------------------------------
 
 useful_npm_packages_to_install=(
-    npm
+    # FIXME needed?   npm
     tldr              # Provides a simplified man pages with practical examples
 )
 

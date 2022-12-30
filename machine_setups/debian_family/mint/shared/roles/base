@@ -50,7 +50,7 @@ packages_to_install=(
     dropbox
     dstat                       # Versatile tool for generating system resource statistics (replacement of vmstat, iostat and ifstat)
     exfat-fuse                  # Necessary for SD cards
-    exfat-utils                 # Necessary for SD cards
+    #E: Package 'exfat-utils' has no installation candidate        exfat-utils                 # Necessary for SD cards
     exiv2                       # Image metadata manipulation tool. Useful for file renaming when metadata used.
     figlet                      # Program which creates large characters out of ordinary screen characters.
     git                         # Git (any version) must already be installed here because of syntastic

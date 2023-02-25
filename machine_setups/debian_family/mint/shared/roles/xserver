@@ -4,15 +4,6 @@
 
 #-------------------------------------------------------------------------------
 
-configure_xserver_repositories() {
-    # See information about the current official version and current long-lived
-    # branch version on
-    # https://launchpad.net/~graphics-drivers/+archive/ubuntu/ppa
-    add-apt-repository ppa:graphics-drivers/ppa --yes
-}
-
-#-------------------------------------------------------------------------------
-
 okular_specific_debian_packages_to_install=(
     okular
 )
@@ -105,7 +96,6 @@ configure_bash_prompt() {
 #-------------------------------------------------------------------------------
 
 main() {
-    configure_xserver_repositories
     aptget_update
     install_xserver_specific_debian_packages
     configure_default_applications

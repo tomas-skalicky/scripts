@@ -36,6 +36,16 @@ install_private_laptop_specific_debian_packages() {
 
 #-------------------------------------------------------------------------------
 
+private_laptop_specific_flatpak_packages_to_install=(
+    kdenlive            # To edit videos
+)
+
+install_private_laptop_specific_flatpak_packages() {
+    flatpak install "${private_laptop_specific_flatpak_packages_to_install[@]}"
+}
+
+#-------------------------------------------------------------------------------
+
 private_laptop_specific_snap_packages_to_install=(
     postman
 )
@@ -828,14 +838,6 @@ configure_gnupg2() {
 
 #-------------------------------------------------------------------------------
 
-install_multimedia_software() {
-    add-apt-repository ppa:kdenlive/kdenlive-stable -y
-    aptget_update
-    aptget_install kdenlive
-}
-
-#-------------------------------------------------------------------------------
-
 set_up_backup_process() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r backup_mount_point=/backup
@@ -1198,12 +1200,12 @@ configure_pass() {
 main() {
     configure_file_system
     install_private_laptop_specific_debian_packages
+    install_private_laptop_specific_flatpak_packages
     install_private_laptop_specific_snap_packages
     install_private_laptop_specific_python_packages
     configure_dnsmasq
     configure_ssh
     configure_gnupg2
-    install_multimedia_software
     set_up_backup_process
     local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files
     local -r dropbox_home_dir=${user_home:?}/Documents/Dropbox

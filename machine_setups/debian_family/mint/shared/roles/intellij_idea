@@ -30,6 +30,12 @@ install_inotify() {
 
 #-------------------------------------------------------------------------------
 
+install_plugin_dependencies() {
+    aptget_install graphviz # Graph visualization software required by PlantUML Integration
+}
+
+#-------------------------------------------------------------------------------
+
 update_idea_vmoptions() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r filepath=${1:?}
@@ -165,6 +171,7 @@ main() {
     check_license_version "$license_version"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     install_inotify
+    install_plugin_dependencies
     install_idea "$license_version"
 }
 

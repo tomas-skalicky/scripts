@@ -37,7 +37,7 @@ install_private_laptop_specific_debian_packages() {
 #-------------------------------------------------------------------------------
 
 private_laptop_specific_flatpak_packages_to_install=(
-    kdenlive            # To edit videos
+    org.kde.kdenlive/x86_64/stable            # To edit videos
 )
 
 install_private_laptop_specific_flatpak_packages() {

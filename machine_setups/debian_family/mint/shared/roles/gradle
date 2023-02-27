@@ -29,6 +29,12 @@ configure_gw() {
 
 #-------------------------------------------------------------------------------
 
+clean_up_deamon_log_files() {
+    find ~/.gradle -mtime +30 -name '*\.out\.log' -exec rm {} \;
+}
+
+#-------------------------------------------------------------------------------
+
 main() {
     local -r gw_repo_clone_destination_intern=${1:-}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,6 +43,7 @@ main() {
     if [[ -n $gw_repo_clone_destination_intern ]]; then
         configure_gw "$gw_repo_clone_destination_intern"
     fi
+    clean_up_deamon_log_files
 }
 
 #-------------------------------------------------------------------------------

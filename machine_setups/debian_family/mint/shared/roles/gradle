@@ -30,7 +30,7 @@ configure_gw() {
 #-------------------------------------------------------------------------------
 
 clean_up_deamon_log_files() {
-    find ~/.gradle -mtime +30 -name '*\.out\.log' -exec rm {} \;
+    find "${user_home:?}"/.gradle -mtime +30 -name '*\.out\.log' -exec rm {} \;
 }
 
 #-------------------------------------------------------------------------------

@@ -181,7 +181,9 @@ reload_profile() {
 main() {
     configure_base_apt_sources
     install_packages
-    flatpak upgrade
+
+    flatpak update
+    flatpak remove --unused
 
     configure_timestamps_in_history
     configure_vim

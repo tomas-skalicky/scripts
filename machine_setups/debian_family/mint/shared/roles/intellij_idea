@@ -54,7 +54,7 @@ update_idea_vmoptions() {
     # application velocity may radically descrease. (from
     # https://blog.codecentric.de/2011/07/nutzliche-jvm-flags-teil-4/)
     read -r -d '' block_contents <<- EOF
-	-Xmx8g
+	-Xmx10g
 	-XX:ReservedCodeCacheSize=1024m
 	-Duser.name=Tomas Skalicky
 	EOF

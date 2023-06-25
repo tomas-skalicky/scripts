@@ -301,18 +301,16 @@ git_repo_clone_or_pull() {
                          source "$2";
                          cd "$3";
                          git remote set-url origin "$4";
-                         git fetch --prune;
+                         git pull --prune;
                          delete_git_local_branches_if_merged_to_master;
-                         git pull;
                          git gc' \
                          _ "$file_with_ssh_variables" "${bash_utilities_file_path:?}" "$clone_directory" "$remote_repo_url"
         else
             (
               cd "$clone_directory"
               git remote set-url origin "$remote_repo_url"
-              git fetch --prune
+              git pull --prune
               delete_git_local_branches_if_merged_to_master
-              git pull
               git gc
             )
         fi

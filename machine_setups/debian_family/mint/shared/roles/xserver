@@ -43,7 +43,7 @@ install_microsoft_fonts() {
     if are_microsoft_truetype_fonts_installed_successfully; then
         print_info 'Microsoft TrueType fonts have been already installed.'
     else
-        local -r deb_package_name=ttf-mscorefonts-installer_3.6_all.deb
+        local -r deb_package_name=ttf-mscorefonts-installer_3.8.1_all.deb
         local -r downloaded_package_file_path=/tmp/$deb_package_name
         wget --quiet --output-document="$downloaded_package_file_path" http://ftp.de.debian.org/debian/pool/contrib/m/msttcorefonts/"$deb_package_name"
         dpkg --install "$downloaded_package_file_path"

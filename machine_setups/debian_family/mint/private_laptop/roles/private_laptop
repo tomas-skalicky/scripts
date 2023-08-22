@@ -859,7 +859,9 @@ set_up_backup_process() {
         '--exclude run/'
         '--exclude sys/'
         '--exclude tmp/'
-        '--exclude var/tmp/'
+        '--exclude var/lock/'
+        '--exclude var/run/'
+        '--exclude var/spool/'
     )
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r filepath=/etc/cron.d/backup

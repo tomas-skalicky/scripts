@@ -113,6 +113,9 @@ rsync --archive \
       --exclude run/ \
       --exclude sys/ \
       --exclude tmp/ \
+      --exclude var/lock/ \
+      --exclude var/run/ \
+      --exclude var/spool/ \
       --exclude var/tmp/ \
       --log-file="$rsync_log_file_path" \
       --stats \

@@ -7,7 +7,8 @@
 configure_file_system() {
     # noatime ... eliminates the need by the system to make writes to
     #             the file system for files which are simply being read.
-    # discard ... enables TRIM (key feature for SSDs)
+    # discard ... enables TRIM (key feature for SSDs) so that the SSD knows
+    #             which blocks are free to be reclaimed.
     local -r additional_ssh_disks_options=,noatime,discard
     local -r fstab_file_path=/etc/fstab
     sed \

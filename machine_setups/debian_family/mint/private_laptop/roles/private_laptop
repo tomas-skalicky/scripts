@@ -892,9 +892,10 @@ set_up_cron_job_to_share_files_and_folders_with_hanka() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r filepath=/etc/cron.d/share_files_and_folders_with_hanka
     local file_contents
+    # "chronic" not used to see which files and folders have been touched.
     set +e
     read -r -d '' file_contents <<- EOF
-	10 10-22 * * *   root   chronic "${private_setup_scripts_home:?}"/static/share_files_and_folders_with_hanka.bash tomas_hanka hanka "${username:?}" "${mint_documents_path:?}"/documents "${mint_documents_path:?}"/photos >> /var/log/cron_job_share_files_and_folders_with_hanka.log 2>&1
+	10 10-22 * * *   root   "${private_setup_scripts_home:?}"/static/share_files_and_folders_with_hanka.bash tomas_hanka hanka "${username:?}" "${mint_documents_path:?}"/documents "${mint_documents_path:?}"/photos >> /var/log/cron_job_share_files_and_folders_with_hanka.log 2>&1
 	EOF
     set -e
     set_file_contents \

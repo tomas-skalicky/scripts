@@ -7,6 +7,9 @@ hankas_user_name=${2:?"Provider a name of Hanka's user, e.g. hanka"}
 tomas_user_name=${3:?"Provider a name of Tomas's user, e.g. tom"}
 root_folders_to_process=("${@:4}")
 
+echo -n 'Now: '
+date +"%Y-%m-%d %H:%M:%S"
+
 for root_folder in "${root_folders_to_process[@]}"; do
 
     echo -e "\n# Find all non-hidden files and folders (=not starting with dot) in the folder '$root_folder' which are NOT in the user group '$group_name' and set their group to this group."

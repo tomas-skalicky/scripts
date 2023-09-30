@@ -886,6 +886,26 @@ set_up_backup_process() {
 
 #-------------------------------------------------------------------------------
 
+set_up_cron_job_to_share_files_and_folders_with_hanka() {
+    local -r private_setup_scripts_home=${1:?}
+    local -r mint_documents_path=${2:?}
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r filepath=/etc/cron.d/share_files_and_folders_with_hanka
+    local file_contents
+    set +e
+    read -r -d '' file_contents <<- EOF
+	10 10-22 * * *   root   chronic "${private_setup_scripts_home:?}"/static/share_files_and_folders_with_hanka.bash tomas_hanka hanka "${username:?}" "${mint_documents_path:?}"/documents "${mint_documents_path:?}"/photos >> /var/log/cron_job_share_files_and_folders_with_hanka.log 2>&1
+	EOF
+    set -e
+    set_file_contents \
+                      "$filepath" \
+                      "$file_contents"
+    chmod 644 "$filepath"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}
+
+#-------------------------------------------------------------------------------
+
 configure_crypto_bot_anacron() {
     local -r anacrontab_file_path=${1:?}
     local -r crypto_bot_for_anacron_production_run_home_path=${2:?}
@@ -1080,8 +1100,9 @@ create_or_update_auxiliary_tmux_functions_for_interactive_shells() {
 
 create_or_update_auxiliary_functions_for_interactive_shells() {
     local -r dropbox_home_dir=${1:?}
-    local -r python_projects_home_dir=${2:?}
-    local -r java_projects_home_dir=${3:?}
+    local -r private_setup_scripts_home=${2:?}
+    local -r python_projects_home_dir=${3:?}
+    local -r java_projects_home_dir=${4:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # shellcheck disable=SC2154
     check_if_array_variable_set_and_not_empty dropbox_dirpaths "${dropbox_dirpaths[@]}"
@@ -1136,7 +1157,7 @@ create_or_update_auxiliary_functions_for_interactive_shells() {
 	}
 	set_up_my_mint() {
 	    # shellcheck disable=SC2140
-	    cd "${dirpaths[dropbox]}"/"${dropbox_dirpaths[mint_setup_scripts]}/private_laptop"
+	    cd "${private_setup_scripts_home:?}"
 	    sudo ./set_up_my_private_mint.bash
 	    cd - >/dev/null
 	}
@@ -1210,11 +1231,15 @@ main() {
     configure_ssh
     configure_gnupg2
     set_up_backup_process
+    local -r mint_documents_path=${user_home:?}/Documents
+    local -r dropbox_home_dir=${mint_documents_path:?}/Dropbox
+    local -r private_setup_scripts_home="${dropbox_home_dir:?}"/"${dropbox_dirpaths[mint_setup_scripts]}/private_laptop"
+    set_up_cron_job_to_share_files_and_folders_with_hanka "${private_setup_scripts_home:?}" "${mint_documents_path:?}"
     local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files
-    local -r dropbox_home_dir=${user_home:?}/Documents/Dropbox
     local -r python_projects_home_dir=${user_home:?}/Documents/development/python/source_files
     create_or_update_auxiliary_functions_for_interactive_shells \
                                                                 "${dropbox_home_dir:?}" \
+                                                                "${private_setup_scripts_home:?}" \
                                                                 "${python_projects_home_dir:?}" \
                                                                 "${java_projects_home_dir:?}"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

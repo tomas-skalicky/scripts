@@ -77,7 +77,7 @@ install_idea() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -A idea
     # shellcheck disable=SC2154
-    idea[product]=idea${license_version}-2023.2.5
+    idea[product]=idea${license_version}-2023.3
     # shellcheck disable=SC2154
     idea[installer_filename]=${idea[product]}.tar.gz
     # shellcheck disable=SC2154

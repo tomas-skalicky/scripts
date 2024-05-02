@@ -49,7 +49,7 @@ install_pycharm() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -A pycharm
     # shellcheck disable=SC2154
-    pycharm[product]=pycharm-${license_version}-2023.3.3
+    pycharm[product]=pycharm-${license_version}-2023.3.4
     # shellcheck disable=SC2154
     pycharm[installer_filename]=${pycharm[product]}.tar.gz
     # shellcheck disable=SC2154

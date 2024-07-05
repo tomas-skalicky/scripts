@@ -6,7 +6,7 @@
 
 install_rambox() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    local -r version=2.3.2
+    local -r version=2.3.4
     local -r app_name=rambox
     local -r deb_package_file_name=Rambox-$version-linux-x64.deb
     if ! dpkg --list "$app_name" \

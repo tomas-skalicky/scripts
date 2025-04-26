@@ -53,7 +53,6 @@ main() {
     source ../shared/roles/docker
     source ../shared/roles/rambox
     # Needed for video calls which rambox cannot serve yet.
-    source ../shared/roles/skype
     source ../shared/roles/xserver
     source ../shared/roles/pass
     source ../shared/roles/virtualbox

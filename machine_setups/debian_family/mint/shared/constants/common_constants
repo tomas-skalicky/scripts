@@ -12,9 +12,7 @@ additional_software_root=/opt
 #-------------------------------------------------------------------------------
 
 # shellcheck disable=SC2034
-ubuntu_14_04_distribution_name=trusty
-# shellcheck disable=SC2034
-current_ubuntu_distribution_name=focal
+current_ubuntu_distribution_name=noble
 
 # NOTE: The current Mint distribution name is not directly referenced on any
 # place in the code. The reason is that if the distribution name is set to the

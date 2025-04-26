@@ -49,7 +49,7 @@ install_pycharm() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -A pycharm
     # shellcheck disable=SC2154
-    pycharm[product]=pycharm-${license_version}-2023.3.4
+    pycharm[product]=pycharm-${license_version}-2025.1
     # shellcheck disable=SC2154
     pycharm[installer_filename]=${pycharm[product]}.tar.gz
     # shellcheck disable=SC2154
@@ -61,7 +61,7 @@ install_pycharm() {
     # shellcheck disable=SC2154
     pycharm[link_name]=/usr/bin/pycharm-$license_version
     # shellcheck disable=SC2154
-    pycharm[link_target]=${pycharm[installation_path]}/bin/pycharm.sh
+    pycharm[link_target]=${pycharm[installation_path]}/bin/pycharm
     # shellcheck disable=SC2154
     pycharm[link_exists]=false
     # shellcheck disable=SC2154

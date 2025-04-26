@@ -59,23 +59,19 @@ install_private_laptop_specific_snap_packages() {
 
 
 private_laptop_specific_python_packages_to_install=(
-    jupyter      # jupyter notebook is not a part of the PyCharm community
-                 # version any more
-    matplotlib
-    pandas       # Needed for my bot using algorithm based on support and
+    python3-notebook # jupyter notebook is not a part of the PyCharm community
+                     # version any more
+    python3-matplotlib
+    python3-pandas   # Needed for my bot using algorithm based on support and
                  # resistance.
-    PyFunctional # Needed for my bot using algorithm based on support and
+    # FIXME Not found out which debian package corresponds to pip package
+    # PyFunctional.
+    #PyFunctional # Needed for my bot using algorithm based on support and
                  # resistance.
 )
 
 install_private_laptop_specific_python_packages() {
-    # --user ... pip installs Python packages to a system directory (such as
-    #            /usr/local/lib/python3.6) by default. This requires root
-    #            access. The option --user makes pip install packages in your
-    #            home directory instead which does not require any special
-    #            priviledges. Go to ~/.local/bin (such as
-    #            ~/.local/bin/jupyter-notebook) to execute the package.
-    sudo --user="${username:?}" python3 -m pip install --user "${private_laptop_specific_python_packages_to_install[@]}"
+    aptget_install "${private_laptop_specific_python_packages_to_install[@]}"
 }
 
 #-------------------------------------------------------------------------------

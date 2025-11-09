@@ -53,7 +53,7 @@ main() {
     source ../shared/roles/git
     source ../shared/roles/docker
     source ../shared/roles/rambox
-    # Needed for video calls which rambox cannot serve yet.
+    source ../shared/roles/typora
     source ../shared/roles/xserver
     source ../shared/roles/pass
     source ../shared/roles/virtualbox

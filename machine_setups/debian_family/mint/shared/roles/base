@@ -46,7 +46,6 @@ packages_to_install=(
     apt-file
     curl
     dirmngr                     # Necessary for gnupg2
-    doublecmd-gtk               # Similar to Window Total commander
     dropbox
     dstat                       # Versatile tool for generating system resource statistics (replacement of vmstat, iostat and ifstat)
     exfat-fuse                  # Necessary for SD cards

@@ -41,6 +41,7 @@ main() {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     source ../shared/roles/secured_functions
     source ../shared/roles/base
+    source ../shared/roles/double_commander
     source ../shared/roles/snap
     source ../shared/roles/jvm_software_development_kit java
     source ../shared/roles/jvm_software_development_kit groovy

@@ -154,7 +154,7 @@ set_or_replace_block_contents_in_file() {
     local -r begin_comment=${3:?}
     local -r end_comment=${4:?}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if grep "$begin_comment" "$filepath" >/dev/null; then
+    if grep "$begin_comment" "$filepath" 2>/dev/null; then
         local -r tmp_filepath=${filepath}_tmp.$$
         set_file_contents "$tmp_filepath" "$block_contents"
         # NOTE: 0 in the first interval is essential! If you used 1 instead of

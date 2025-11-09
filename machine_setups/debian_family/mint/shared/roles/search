@@ -20,6 +20,33 @@ install_search_packages() {
 
 #-------------------------------------------------------------------------------
 
+configure_updatedb() {
+    local block_contents
+    set +e
+    # NOTE: Don't replace EOF with 'EOF'. Otherwise, you would come across
+    # encoding problems.
+    read -r -d '' block_contents <<- EOF
+	# Excludes transient and system filesystems
+	PRUNEFS="afs afuse anon_inodefs autofs bpf cgroup cgroup2 configfs debugfs devpts devtmpfs ecryptfs efivarfs fuse.gvfsd-fuse fuse.portal fusectl hugetlbfs mqueue nfs nfs4 proc pstore rpc_pipefs securityfs squashfs sysfs tmpfs tracefs"
+
+	# Excludes transient and user runtime directories
+	PRUNEPATHS="/dev /media /mnt /proc /run /run/lock /run/shm /run/user /run/user/1000/doc /run/user/1000/gvfs /snap /sys /tmp /var/lib/snapd /var/spool /var/tmp"
+
+	# Excludes removable media and network mounts
+	PRUNE_BIND_MOUNTS="yes"
+	EOF
+    set -e
+    local -r begin_comment='# <BEGIN> Configuration managed by a script - search role'
+    local -r end_comment='# <END> Configuration managed by a script - search role'
+    set_or_replace_block_contents_in_file \
+                                          /etc/updatedb.conf \
+                                          "$block_contents" \
+                                          "$begin_comment" \
+                                          "$end_comment"
+}
+
+#-------------------------------------------------------------------------------
+
 update_file_name_database() {
     updatedb
 }
@@ -28,6 +55,7 @@ update_file_name_database() {
 
 main() {
     install_search_packages
+    configure_updatedb
     update_file_name_database
 }
 

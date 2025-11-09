@@ -119,14 +119,6 @@ aptget_install() {
                   "$@"
 }
 
-aptget_install_unauthenticated() {
-    aptget_action \
-                  install \
-                  'Installing unauthenticated packages' \
-                  --allow-unauthenticated \
-                  "$@"
-}
-
 aptget_purge() {
     aptget_action \
                   purge \

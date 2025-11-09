@@ -99,7 +99,7 @@ main() {
     aptget_update
     install_xserver_specific_debian_packages
     configure_default_applications
-    source ../shared/roles/google-chrome
+    source ../shared/roles/google_chrome
     install_microsoft_fonts
     configure_bash_prompt
 }

@@ -84,16 +84,21 @@ set +e
 # /home/tom/.sdkman/candidates contain only
 # downloaded or unpacked downloaded files.
 hanka_username=hanka
+children_username=kinder
 rsync --archive \
       --delete-after \
       --exclude backup/ \
       --exclude cdrom/ \
       --exclude dev/ \
+      --exclude home/"$hanka_username"/.cache/ \
+      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/CacheStorage/ \
+      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/ScriptCache/ \
+      --exclude home/"$hanka_username"/.config/Rambox/Partitions/rambox/Cache/ \
+      --exclude home/"$children_username"/.cache/ \
       --exclude home/"$username"/.cache/ \
       --exclude home/"$username"/.config/google-chrome/Default/'Service Worker'/CacheStorage/ \
       --exclude home/"$username"/.config/google-chrome/Default/'Service Worker'/ScriptCache/ \
       --exclude home/"$username"/.config/Rambox/Partitions/rambox/Cache/ \
-      --exclude home/"$username"/.config/skypeforlinux/Cache/ \
       --exclude home/"$username"/.gradle/caches/ \
       --exclude home/"$username"/.gradle/gradle/dists/ \
       --exclude home/"$username"/.gradle/wrapper/dists/ \
@@ -101,17 +106,13 @@ rsync --archive \
       --exclude home/"$username"/.sdkman/archives/ \
       --exclude home/"$username"/.sdkman/candidates/groovy/ \
       --exclude home/"$username"/.tldr/cache/ \
-      --exclude home/"$hanka_username"/.cache/ \
-      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/CacheStorage/ \
-      --exclude home/"$hanka_username"/.config/google-chrome/Default/'Service Worker'/ScriptCache/ \
-      --exclude home/"$hanka_username"/.config/Rambox/Partitions/rambox/Cache/ \
-      --exclude home/"$hanka_username"/.config/skypeforlinux/Cache/ \
       --exclude lost\+found/ \
       --exclude media/ \
       --exclude mnt/ \
       --exclude proc/ \
       --exclude run/ \
       --exclude sys/ \
+      --exclude timeshift/ \
       --exclude tmp/ \
       --exclude var/lock/ \
       --exclude var/run/ \

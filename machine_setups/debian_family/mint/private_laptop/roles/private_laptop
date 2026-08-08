@@ -840,6 +840,8 @@ set_up_backup_process() {
     local -r backup_mount_point=/backup
     [[ ! -d $backup_mount_point ]] && mkdir --verbose "$backup_mount_point"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r hanka_username=hanka
+    local -r children_username=kinder
     local -r rsync_options=(
         '--archive'
         '--verbose'
@@ -848,17 +850,34 @@ set_up_backup_process() {
         '--exclude backup/'
         '--exclude cdrom/'
         '--exclude dev/'
+        "--exclude home/${hanka_username:?}/.cache"
+        "--exclude home/${hanka_username:?}/.config/google-chrome/Default/Service\ Worker/CacheStorage"
+        "--exclude home/${hanka_username:?}/.config/google-chrome/Default/Service\ Worker/ScriptCache"
+        "--exclude home/${hanka_username:?}/.config/Rambox/Partitions/rambox/Cache"
+        "--exclude home/${children_username:?}/.cache"
         "--exclude home/${username:?}/.cache"
+        "--exclude home/${username:?}/.config/google-chrome/Default/Service\ Worker/CacheStorage"
+        "--exclude home/${username:?}/.config/google-chrome/Default/Service\ Worker/ScriptCache"
+        "--exclude home/${username:?}/.config/Rambox/Partitions/rambox/Cache"
+        "--exclude home/${username:?}/.gradle/caches"
+        "--exclude home/${username:?}/.gradle/gradle/dists"
+        "--exclude home/${username:?}/.gradle/wrapper/dists"
+        "--exclude home/${username:?}/.npm"
+        "--exclude home/${username:?}/.sdkman/archives"
+        "--exclude home/${username:?}/.sdkman/candidates/groovy"
+        "--exclude home/${username:?}/.tldr/cache"
         '--exclude lost\+found/'
         '--exclude media/'
         '--exclude mnt/'
         '--exclude proc/'
         '--exclude run/'
         '--exclude sys/'
+        '--exclude timeshift/'
         '--exclude tmp/'
         '--exclude var/lock/'
         '--exclude var/run/'
         '--exclude var/spool/'
+        '--exclude var/tmp/'
     )
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r filepath=/etc/cron.d/backup

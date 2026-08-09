@@ -880,22 +880,34 @@ set_up_backup_process() {
         '--exclude var/tmp/'
     )
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    local -r filepath=/etc/cron.d/backup
-    local file_contents
-    # --delete-after option means:
-    #     1. rsync syncs files from source (laptop disk) to desctination
-    #        (backup folder)
-    #     2. When the sync is done, rsync removes from the destionation
-    #        those files, which are no more in the source.
+    # A cron entry is generally limited to 1024 characters. The command above
+    # exceeds this limit which led to an error message "Error: command too long;
+    # while reading /etc/cron.d/backup". Therefore, the rsync command has been
+    # moved to a separate script.
+    local -r rsync_command_filepath=/usr/local/sbin/backup.bash
+    local rsync_command_file_contents
     set +e
-    read -r -d '' file_contents <<- EOF
-	0 20 * * *   root   chronic rsync ${rsync_options[@]} / "$backup_mount_point"
+    read -r -d '' rsync_command_file_contents <<- EOF
+	#!/usr/bin/env bash
+	rsync ${rsync_options[@]} / "$backup_mount_point"
 	EOF
     set -e
     set_file_contents \
-                      "$filepath" \
-                      "$file_contents"
-    chmod 644 "$filepath"
+                      "$rsync_command_filepath" \
+                      "$rsync_command_file_contents"
+    chmod 750 "$rsync_command_filepath"
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    local -r cron_filepath=/etc/cron.d/backup
+    local cron_file_contents
+    set +e
+    read -r -d '' cron_file_contents <<- EOF
+	0 20 * * *   root   chronic "$rsync_command_filepath"
+	EOF
+    set -e
+    set_file_contents \
+                      "$cron_filepath" \
+                      "$cron_file_contents"
+    chmod 644 "$cron_filepath"
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }
 

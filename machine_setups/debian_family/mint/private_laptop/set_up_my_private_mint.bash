@@ -57,10 +57,10 @@ main() {
     source ../shared/roles/xserver
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
+    source ../shared/roles/claude_code
     source roles/private_laptop
     source ../shared/roles/ledger_live_wallet
     source ../shared/roles/search
-    source ../shared/roles/claude_code
     print_info 'Setup has been successful'
 }
 

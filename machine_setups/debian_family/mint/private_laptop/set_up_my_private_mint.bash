@@ -59,6 +59,8 @@ main() {
     source ../shared/roles/virtualbox
     source ../shared/roles/claude_code
     source ../shared/roles/claude_desktop
+    source ../shared/roles/github_cli
+    source roles/github_access__private_laptop
     source roles/private_laptop
     source ../shared/roles/ledger_live_wallet
     source ../shared/roles/search

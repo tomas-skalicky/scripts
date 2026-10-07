@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#
+# Private-laptop-specific GitHub access of Claude Code.
+#
+# Requires the roles "github_cli", "claude_code" and "pass". The personal access
+# token of GitHub is stored in the password store (see the role "pass") under
+# the name below. The token is not part of this repository.
+#
+#author      :Tomas Skalicky <skalicky.tomas@gmail.com>
+#===============================================================================
+
+#-------------------------------------------------------------------------------
+
+readonly github_mcp_token_pass_name=github/claude_code_mcp_token
+
+#-------------------------------------------------------------------------------
+
+configure_github_access_for_claude_code() {
+    local github_token
+    if ! github_token=$(sudo --user="${username:?}" pass show "$github_mcp_token_pass_name" 2>/dev/null | head --lines=1) \
+        || [[ -z $github_token ]]
+    then
+        print_warning "The password store has no entry '$github_mcp_token_pass_name'. Skipping the GitHub MCP server configuration. Add the entry (pass insert $github_mcp_token_pass_name) and run the setup again."
+        return
+    fi
+    configure_github_mcp_server_for_claude_code "$github_token"
+}
+
+#-------------------------------------------------------------------------------
+
+main() {
+    configure_github_access_for_claude_code
+}
+
+#-------------------------------------------------------------------------------
+
+main

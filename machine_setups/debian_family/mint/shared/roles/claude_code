@@ -39,8 +39,8 @@ verify_claude_code_apt_key() {
 #-------------------------------------------------------------------------------
 
 configure_claude_code_apt_sources() {
-    # "stable" is typically about a week old; use "latest" to get every release.
-    local -r channel=stable
+    # "latest" serves every release; use "stable" for a version about a week old.
+    local -r channel=latest
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     local -r keyring_file_name=claude-code.gpg
     local -r keyring_file_path=${keyrings_home:?}/$keyring_file_name

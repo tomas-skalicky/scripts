@@ -58,7 +58,7 @@ main() {
     source ../shared/roles/pass
     source ../shared/roles/virtualbox
     source ../shared/roles/claude_code
-    bash ../shared/roles/install-claude-desktop.sh
+    source ../shared/roles/claude_desktop
     source roles/private_laptop
     source ../shared/roles/ledger_live_wallet
     source ../shared/roles/search

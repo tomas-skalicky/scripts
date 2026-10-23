@@ -1260,7 +1260,7 @@ main() {
     configure_gnupg2
     set_up_backup_process
     local -r mint_documents_path=${user_home:?}/Documents
-    local -r dropbox_home_dir=${mint_documents_path:?}/Dropbox
+    local -r dropbox_home_dir=${user_home:?}/Dropbox
     local -r private_setup_scripts_home="${dropbox_home_dir:?}"/"${dropbox_dirpaths[mint_setup_scripts]}/private_laptop"
     set_up_cron_job_to_share_files_and_folders_with_hanka "${private_setup_scripts_home:?}" "${mint_documents_path:?}"
     local -r java_projects_home_dir=${user_home:?}/Documents/development/java/source_files

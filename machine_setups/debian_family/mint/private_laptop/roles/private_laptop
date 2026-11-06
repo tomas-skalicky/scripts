@@ -28,6 +28,8 @@ configure_file_system() {
 
 private_laptop_specific_debian_packages_to_install=(
     dnsmasq             # For easy configuration of custom DNS servers.
+    pdfarranger         # For easy modification of PDFs by deleting, rotating,
+                        # reordering and dragging in pages from other PDFs.
     postgresql
 )
 

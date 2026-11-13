@@ -28,11 +28,11 @@ configure_base_apt_sources() {
     # Used ; (semicolor) as a separator
     sed \
         --in-place \
-        's;http://packages.linuxmint.com;https://ftp.fau.de/mint/packages;' \
+        's;http://packages.linuxmint.com;https://linuxmint.nic.cz/linuxmint-packages;' \
         /etc/apt/sources.list.d/official-package-repositories.list
     sed \
         --in-place \
-        's;http://archive.ubuntu.com/ubuntu;http://ftp-stud.hs-esslingen.de/ubuntu;' \
+        's;http://archive.ubuntu.com/ubuntu;http://ftp.linux.cz/pub/linux/ubuntu;' \
         /etc/apt/sources.list.d/official-package-repositories.list
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     aptkey_adv 3EE67F3D0FF405B2
